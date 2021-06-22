@@ -45,13 +45,7 @@ class NotesAdapter(
         }
 
         fun setSelected(selected: Boolean) {
-            if (selected) {
-                binding.root.elevation = 12F
-                itemView.isSelected = true
-            } else {
-                binding.root.elevation = 0F
-                itemView.isSelected = false
-            }
+            binding.root.elevation = if (selected) 8F else 0F
         }
     }
 

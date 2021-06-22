@@ -9,9 +9,11 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?android:actionBarSize"
-        android:background="?colorPrimary"
         android:elevation="4dp"
+        android:theme="@style/Theme.Toolbar"
+        android:layout_height="?android:actionBarSize"
+        app:titleTextColor="@color/secondary"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
