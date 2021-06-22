@@ -3,4 +3,6 @@
     <string name="delete_note">Delete note</string>
     <string name="add_note">Add note</string>
     <string name="actions">Actions</string>
+    <string name="delete">Delete</string>
+    <string name="send">Send</string>
 </resources>
