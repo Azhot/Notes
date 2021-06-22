@@ -41,7 +41,7 @@ class NotesAdapter(
         fun bind(note: Note) {
             itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
-            binding.title.text = note.title
+            binding.title.text = note.text
         }
 
         fun setSelected(selected: Boolean) {
