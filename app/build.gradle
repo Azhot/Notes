@@ -42,20 +42,17 @@ dependencies {
     // kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     
-    // android
+    // androidx
     implementation 'androidx.core:core-ktx:1.5.0'
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // material
     implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // navigation
     def nav_version = "2.3.5"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
-
 
     // jUnit
     testImplementation 'junit:junit:4.13.2'
