@@ -15,26 +15,26 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="3"
-        app:layout_constraintEnd_toStartOf="@id/delete_button"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt est nec arcu rutrum, ac tincidunt ex consequat. Aenean suscipit cursus nulla, id placerat mauris " />
 
-    <ImageButton
-        android:id="@+id/delete_button"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:background="@null"
-        android:clickable="true"
-        android:contentDescription="@string/delete_note"
-        android:focusable="true"
-        android:src="@drawable/ic_delete_24"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/title"
-        app:layout_constraintTop_toTopOf="@id/title"
-        tools:visibility="visible" />
+<!--    <ImageButton-->
+<!--        android:id="@+id/delete_button"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:background="@null"-->
+<!--        android:clickable="true"-->
+<!--        android:contentDescription="@string/delete_note"-->
+<!--        android:focusable="true"-->
+<!--        android:src="@drawable/ic_delete_24"-->
+<!--        android:visibility="gone"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/title"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toEndOf="@id/title"-->
+<!--        app:layout_constraintTop_toTopOf="@id/title"-->
+<!--        tools:visibility="visible" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

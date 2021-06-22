@@ -19,7 +19,6 @@ class NotesAdapter(
     interface OnClickListener {
         fun onClick(position: Int)
         fun onLongClick(position: Int)
-        fun onClickDeleteButton(position: Int)
     }
 
 
@@ -43,18 +42,13 @@ class NotesAdapter(
             itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
             binding.title.text = note.title
-            binding.deleteButton.setOnClickListener {
-                listener.onClickDeleteButton(adapterPosition)
-            }
         }
 
         fun setSelected(selected: Boolean) {
             if (selected) {
-                binding.deleteButton.visibility = View.VISIBLE
                 binding.root.elevation = 12F
                 itemView.isSelected = true
             } else {
-                binding.deleteButton.visibility = View.GONE
                 binding.root.elevation = 0F
                 itemView.isSelected = false
             }
@@ -95,7 +89,7 @@ class NotesAdapter(
         notifyItemInserted(notes.lastIndex)
     }
 
-    fun remove(position: Int) {
+    fun delete(position: Int) {
         notes.removeAt(position)
         notifyItemRemoved(position)
     }
@@ -103,8 +97,8 @@ class NotesAdapter(
 
     // Selection functions
     fun isInSelectionMode(): Boolean {
-        for (i in notes) {
-            if (i.second) return true
+        for (pair in notes) {
+            if (pair.second) return true
         }
         return false
     }
@@ -119,10 +113,18 @@ class NotesAdapter(
     }
 
     fun clearSelectedState() {
-        notes.forEachIndexed { index, pair ->
-            if (pair.second) {
-                notes[index] = notes[index].first to false
-                notifyItemChanged(index)
+        for (i in notes.indices) {
+            if (notes[i].second) {
+                notes[i] = notes[i].first to false
+                notifyItemChanged(i)
+            }
+        }
+    }
+
+    fun deleteSelected() {
+        for (i in notes.lastIndex downTo 0) {
+            if (notes[i].second) {
+                delete(i)
             }
         }
     }
