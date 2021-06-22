@@ -1,6 +1,8 @@
 package fr.azhot.notes
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import fr.azhot.notes.databinding.ActivityMainBinding
@@ -18,11 +20,29 @@ class MainActivity : AppCompatActivity(), NotesAdapter.OnClickListener {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         setupNotesRecyclerView()
         setupExtendedFab()
         setupAddNoteFab()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.delete -> {
+                (binding.notesRecyclerView.adapter as NotesAdapter).deleteSelected()
+                return true
+            }
+            R.id.send -> {
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun onClick(position: Int) {
         val adapter = (binding.notesRecyclerView.adapter as NotesAdapter)
@@ -34,11 +54,6 @@ class MainActivity : AppCompatActivity(), NotesAdapter.OnClickListener {
     override fun onLongClick(position: Int) {
         val adapter = (binding.notesRecyclerView.adapter as NotesAdapter)
         adapter.switchSelectedState(position)
-    }
-
-    override fun onClickDeleteButton(position: Int) {
-        val adapter = (binding.notesRecyclerView.adapter as NotesAdapter)
-        adapter.remove(position)
     }
 
 
