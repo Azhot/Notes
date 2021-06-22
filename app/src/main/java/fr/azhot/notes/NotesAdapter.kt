@@ -30,22 +30,22 @@ class NotesAdapter(
         RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
         override fun onClick(v: View?) {
-            listener.onClick(adapterPosition)
+            listener.onClick(bindingAdapterPosition)
         }
 
         override fun onLongClick(v: View?): Boolean {
-            listener.onLongClick(adapterPosition)
+            listener.onLongClick(bindingAdapterPosition)
             return true
         }
 
         fun bind(note: Note) {
             itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
-            binding.title.text = note.text
+            binding.text.text = note.text
         }
 
         fun setSelected(selected: Boolean) {
-            binding.root.elevation = if (selected) 8F else 0F
+            binding.root.elevation = if (selected) 16F else 0F
         }
     }
 
