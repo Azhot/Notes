@@ -1,4 +1,4 @@
-package fr.azhot.notes
+package fr.azhot.notes.presentation.ui.main
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,9 @@ import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import fr.azhot.notes.databinding.CellNoteBinding
+import fr.azhot.notes.domain.model.Note
+import fr.azhot.notes.util.TEXT_PREFIX
+import fr.azhot.notes.util.TITLE_PREFIX
 
 class NotesAdapter(notes: List<Note>, private val listener: OnClickListener) :
     RecyclerView.Adapter<NotesAdapter.ViewHolder>() {
@@ -38,10 +41,27 @@ class NotesAdapter(notes: List<Note>, private val listener: OnClickListener) :
         }
 
         fun bind(note: Note) {
-            ViewCompat.setTransitionName(binding.text, note.id)
-            binding.text.text = note.text
+            setupSharedElementTransition(note.id)
+            setupNoteTitle(note.title)
+            setupNoteText(note.text)
             binding.root.setOnClickListener(this)
             binding.root.setOnLongClickListener(this)
+        }
+
+        private fun setupSharedElementTransition(noteId: String) {
+            ViewCompat.setTransitionName(binding.title, "$TITLE_PREFIX${noteId}")
+            ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${noteId}")
+        }
+
+        private fun setupNoteTitle(title: String) {
+            binding.title.text = title
+            binding.title.visibility = if (title.isEmpty()) View.GONE else View.VISIBLE
+
+        }
+
+        private fun setupNoteText(text: String) {
+            binding.text.text = text
+            binding.text.visibility = if (text.isEmpty()) View.GONE else View.VISIBLE
         }
 
         fun setSelected(selected: Boolean) {

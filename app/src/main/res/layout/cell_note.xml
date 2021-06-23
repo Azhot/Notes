@@ -17,6 +17,20 @@
         android:padding="8dp">
 
         <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/secondaryDark"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Title of the note" />
+
+        <TextView
             android:id="@+id/text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -24,10 +38,9 @@
             android:maxLines="12"
             android:textColor="@color/secondaryDark"
             android:textSize="15sp"
-            android:transitionName="crudNote"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
             tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt est nec arcu rutrum, ac tincidunt ex consequat. Aenean suscipit cursus nulla, id placerat mauris " />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

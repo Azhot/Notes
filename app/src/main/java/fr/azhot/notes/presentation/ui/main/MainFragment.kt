@@ -1,4 +1,4 @@
-package fr.azhot.notes
+package fr.azhot.notes.presentation.ui.main
 
 import android.os.Bundle
 import android.view.*
@@ -7,8 +7,13 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import fr.azhot.notes.R
+import fr.azhot.notes.data.database.DummyNotesGenerator
 import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.databinding.FragmentMainBinding
+import fr.azhot.notes.domain.model.Note
+import fr.azhot.notes.util.TEXT_PREFIX
+import fr.azhot.notes.util.TITLE_PREFIX
 
 class MainFragment : Fragment(), NotesAdapter.OnClickListener {
 
@@ -61,8 +66,11 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
             return
         }
         val note = adapter.get(position)
-        val directions = MainFragmentDirections.actionMainFragmentToCrudFragment(note)
-        val extras = FragmentNavigatorExtras(binding.text to note.id)
+        val directions = MainFragmentDirections.actionMainFragmentToCrudFragment(note.id)
+        val extras = FragmentNavigatorExtras(
+            binding.title to "$TITLE_PREFIX${note.id}",
+            binding.text to "$TEXT_PREFIX${note.id}"
+        )
         findNavController().navigate(directions, extras)
     }
 
@@ -90,14 +98,16 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
     }
 
     private fun setupExtendedFab() {
-        binding.extendedFab.shrink()
-        binding.extendedFab.setOnClickListener {
-            if (!binding.addNoteFab.isVisible) {
-                binding.addNoteFab.show()
-                binding.extendedFab.extend()
-            } else {
-                binding.addNoteFab.hide()
-                binding.extendedFab.shrink()
+        binding.extendedFab.apply {
+            shrink()
+            setOnClickListener {
+                if (!binding.addNoteFab.isVisible) {
+                    binding.addNoteFab.show()
+                    binding.extendedFab.extend()
+                } else {
+                    binding.addNoteFab.hide()
+                    binding.extendedFab.shrink()
+                }
             }
         }
     }

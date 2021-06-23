@@ -1,8 +1,16 @@
 <resources>
     <string name="app_name">Notes</string>
+
+    <!-- Main fragment-->
     <string name="delete_note">Delete note</string>
     <string name="add_note">Add note</string>
     <string name="actions">Actions</string>
+
+    <!--Main Menu-->
     <string name="delete">Delete</string>
     <string name="send">Send</string>
+
+    <!-- Crud fragment-->
+    <string name="title">Title …</string>
+    <string name="type_text_here">Type note here …</string>
 </resources>

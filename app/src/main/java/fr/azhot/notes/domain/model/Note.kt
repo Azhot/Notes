@@ -1,19 +1,22 @@
-package fr.azhot.notes
+package fr.azhot.notes.domain.model
 
 import android.os.Parcel
 import android.os.Parcelable
 import java.util.*
 
 data class Note(
+    var title: String = "",
     var text: String = "",
     val id: String = UUID.randomUUID().toString()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
-        parcel.readString() ?: ""
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(title)
         parcel.writeString(text)
         parcel.writeString(id)
     }
