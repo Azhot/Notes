@@ -11,7 +11,6 @@ import fr.azhot.notes.R
 import fr.azhot.notes.data.database.DummyNotesGenerator
 import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.databinding.FragmentMainBinding
-import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
 
@@ -86,7 +85,7 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
     }
 
     private fun setupNotesRecyclerView() {
-        adapter = NotesAdapter(DummyNotesGenerator.notes, this)
+        adapter = NotesAdapter(DummyNotesGenerator.getNotes(), this)
         binding.notesRecyclerView.apply {
             adapter = this@MainFragment.adapter
             postponeEnterTransition()
@@ -114,9 +113,8 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
 
     private fun setupAddNoteFab() {
         binding.addNoteFab.setOnClickListener {
-            adapter.add(
-                Note("Test ${adapter.itemCount + 1} with a long name to test Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt est nec arcu rutrum, ac tincidunt ex consequat. Aenean suscipit cursus nulla, id placerat ")
-            )
+            val directions = MainFragmentDirections.actionMainFragmentToCrudFragment("newNote")
+            findNavController().navigate(directions)
         }
     }
 }

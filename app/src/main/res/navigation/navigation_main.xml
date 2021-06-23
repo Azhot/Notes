@@ -26,6 +26,7 @@
         tools:layout="@layout/fragment_crud">
         <argument
             android:name="noteId"
+            android:defaultValue="newNote"
             app:argType="string" />
     </fragment>
 

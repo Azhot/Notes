@@ -4,7 +4,7 @@ import fr.azhot.notes.domain.model.Note
 
 object DummyNotesGenerator {
 
-    val notes = listOf(
+    private val notes = mutableListOf(
         Note(
             title = "Malesuada fames ac ante ipsum",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
@@ -28,13 +28,19 @@ object DummyNotesGenerator {
         ),
     )
 
-    fun getNote(id: String): Note? {
+    fun getNotes() = notes
+
+    fun getNote(id: String): Note {
         for (note in notes) {
             if (note.id == id) {
                 return note
             }
         }
-        return null
+        throw NoSuchElementException()
+    }
+
+    fun addNote(note: Note) {
+        notes.add(note)
     }
 
     fun updateNote(note: Note) {
@@ -44,5 +50,9 @@ object DummyNotesGenerator {
                 n.text = note.text
             }
         }
+    }
+
+    fun deleteNote(note: Note) {
+        notes.remove(note)
     }
 }
