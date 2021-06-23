@@ -5,15 +5,16 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.databinding.FragmentMainBinding
 
 class MainFragment : Fragment(), NotesAdapter.OnClickListener {
 
     // variables
     private lateinit var binding: FragmentMainBinding
-    private lateinit var navController: NavController
+    private lateinit var adapter: NotesAdapter
 
 
     // overridden functions
@@ -22,14 +23,12 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMainBinding.inflate(layoutInflater, container, false)
         setHasOptionsMenu(true)
-        return binding.root
+        return setupViewBinding(container)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navController = findNavController() // Navigation.findNavController(view)
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         setupNotesRecyclerView()
         setupExtendedFab()
@@ -44,7 +43,7 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.delete -> {
-                (binding.notesRecyclerView.adapter as NotesAdapter).deleteSelected()
+                adapter.deleteSelected()
                 return true
             }
             R.id.send -> {
@@ -56,26 +55,37 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
 
 
     // callbacks
-    override fun onClick(position: Int) {
-        val adapter = (binding.notesRecyclerView.adapter as NotesAdapter)
+    override fun onClick(position: Int, binding: CellNoteBinding) {
         if (adapter.isInSelectionMode()) {
             adapter.switchSelectedState(position)
+            return
         }
+        val note = adapter.get(position)
+        val directions = MainFragmentDirections.actionMainFragmentToCrudFragment(note)
+        val extras = FragmentNavigatorExtras(binding.text to note.id)
+        findNavController().navigate(directions, extras)
     }
 
     override fun onLongClick(position: Int) {
-        val adapter = (binding.notesRecyclerView.adapter as NotesAdapter)
         adapter.switchSelectedState(position)
     }
 
 
     // functions
+    private fun setupViewBinding(container: ViewGroup?): View {
+        binding = FragmentMainBinding.inflate(layoutInflater, container, false)
+        return binding.root
+    }
+
     private fun setupNotesRecyclerView() {
+        adapter = NotesAdapter(DummyNotesGenerator.notes, this)
         binding.notesRecyclerView.apply {
-            adapter = NotesAdapter(
-                listOf(Note("Test1"), Note("Test2")),
-                this@MainFragment
-            )
+            adapter = this@MainFragment.adapter
+            postponeEnterTransition()
+            viewTreeObserver.addOnPreDrawListener {
+                startPostponedEnterTransition()
+                true
+            }
         }
     }
 
@@ -94,11 +104,9 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
 
     private fun setupAddNoteFab() {
         binding.addNoteFab.setOnClickListener {
-            (binding.notesRecyclerView.adapter as NotesAdapter).apply {
-                add(
-                    Note("Test ${this.itemCount + 1} with a long name to test Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt est nec arcu rutrum, ac tincidunt ex consequat. Aenean suscipit cursus nulla, id placerat ")
-                )
-            }
+            adapter.add(
+                Note("Test ${adapter.itemCount + 1} with a long name to test Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tincidunt est nec arcu rutrum, ac tincidunt ex consequat. Aenean suscipit cursus nulla, id placerat ")
+            )
         }
     }
 }

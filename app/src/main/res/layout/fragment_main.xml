@@ -51,14 +51,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/primary"
         android:contentDescription="@string/add_note"
         android:visibility="gone"
         app:fabSize="normal"
         app:layout_constraintBottom_toTopOf="@+id/extended_fab"
         app:layout_constraintEnd_toEndOf="@+id/extended_fab"
         app:srcCompat="@drawable/ic_add_24"
-        app:tint="@color/white"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

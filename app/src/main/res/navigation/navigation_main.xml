@@ -9,6 +9,24 @@
         android:id="@+id/mainFragment"
         android:name="fr.azhot.notes.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_mainFragment_to_crudFragment"
+            app:destination="@id/crudFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/crudFragment"
+        android:name="fr.azhot.notes.CrudFragment"
+        android:label="fragment_crud"
+        tools:layout="@layout/fragment_crud">
+        <argument
+            android:name="note"
+            app:argType=".Note" />
+    </fragment>
 
 </navigation>

@@ -3,21 +3,20 @@ package fr.azhot.notes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import fr.azhot.notes.databinding.CellNoteBinding
 
-class NotesAdapter(
-    notes: List<Note>,
-    private val listener: OnClickListener
-) :
+class NotesAdapter(notes: List<Note>, private val listener: OnClickListener) :
     RecyclerView.Adapter<NotesAdapter.ViewHolder>() {
 
+    // variables
     private val notes: MutableList<Pair<Note, Boolean>> = notes.map { it to false }.toMutableList()
 
 
     // listener
     interface OnClickListener {
-        fun onClick(position: Int)
+        fun onClick(position: Int, binding: CellNoteBinding)
         fun onLongClick(position: Int)
     }
 
@@ -30,7 +29,7 @@ class NotesAdapter(
         RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
         override fun onClick(v: View?) {
-            listener.onClick(bindingAdapterPosition)
+            listener.onClick(bindingAdapterPosition, binding)
         }
 
         override fun onLongClick(v: View?): Boolean {
@@ -39,9 +38,10 @@ class NotesAdapter(
         }
 
         fun bind(note: Note) {
-            itemView.setOnClickListener(this)
-            itemView.setOnLongClickListener(this)
+            ViewCompat.setTransitionName(binding.text, note.id)
             binding.text.text = note.text
+            binding.root.setOnClickListener(this)
+            binding.root.setOnLongClickListener(this)
         }
 
         fun setSelected(selected: Boolean) {
@@ -83,7 +83,7 @@ class NotesAdapter(
         notifyItemInserted(notes.lastIndex)
     }
 
-    fun delete(position: Int) {
+    private fun delete(position: Int) {
         notes.removeAt(position)
         notifyItemRemoved(position)
     }
