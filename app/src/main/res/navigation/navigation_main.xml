@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="fr.azhot.notes.presentation.ui.main.MainFragment"
+        android:name="fr.azhot.notes.presentation.ui.notes.NotesFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main">
+        tools:layout="@layout/fragment_notes">
         <action
             android:id="@+id/action_mainFragment_to_crudFragment"
             app:destination="@id/crudFragment"
@@ -25,9 +25,10 @@
         android:label="fragment_crud"
         tools:layout="@layout/fragment_crud">
         <argument
-            android:name="noteId"
-            android:defaultValue="newNote"
-            app:argType="string" />
+            android:name="note"
+            android:defaultValue="@null"
+            app:argType=".domain.model.Note"
+            app:nullable="true" />
     </fragment>
 
 </navigation>

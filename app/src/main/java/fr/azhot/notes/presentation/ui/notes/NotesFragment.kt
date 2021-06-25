@@ -1,24 +1,27 @@
-package fr.azhot.notes.presentation.ui.main
+package fr.azhot.notes.presentation.ui.notes
 
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import fr.azhot.notes.R
-import fr.azhot.notes.data.database.DummyNotesGenerator
+import fr.azhot.notes.data.util.Status
 import fr.azhot.notes.databinding.CellNoteBinding
-import fr.azhot.notes.databinding.FragmentMainBinding
+import fr.azhot.notes.databinding.FragmentNotesBinding
+import fr.azhot.notes.presentation.ui.main.MainViewModel
 import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
 
-class MainFragment : Fragment(), NotesAdapter.OnClickListener {
+class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
 
     // variables
-    private lateinit var binding: FragmentMainBinding
+    private lateinit var binding: FragmentNotesBinding
     private lateinit var adapter: NotesAdapter
+    private val viewModel: MainViewModel by activityViewModels()
 
 
     // overridden functions
@@ -37,6 +40,7 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
         setupNotesRecyclerView()
         setupExtendedFab()
         setupAddNoteFab()
+        setupNotesObserver()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -47,7 +51,11 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.delete -> {
-                adapter.deleteSelected()
+                adapter.getSelectedNotes().let { selectedNotes ->
+                    if (selectedNotes.isNotEmpty()) {
+                        viewModel.deleteNote(*selectedNotes)
+                    }
+                }
                 return true
             }
             R.id.send -> {
@@ -65,7 +73,7 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
             return
         }
         val note = adapter.get(position)
-        val directions = MainFragmentDirections.actionMainFragmentToCrudFragment(note.id)
+        val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(note)
         val extras = FragmentNavigatorExtras(
             binding.title to "$TITLE_PREFIX${note.id}",
             binding.text to "$TEXT_PREFIX${note.id}"
@@ -80,14 +88,14 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
 
     // functions
     private fun setupViewBinding(container: ViewGroup?): View {
-        binding = FragmentMainBinding.inflate(layoutInflater, container, false)
+        binding = FragmentNotesBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
     private fun setupNotesRecyclerView() {
-        adapter = NotesAdapter(DummyNotesGenerator.getNotes(), this)
+        adapter = NotesAdapter(this)
         binding.notesRecyclerView.apply {
-            adapter = this@MainFragment.adapter
+            adapter = this@NotesFragment.adapter
             postponeEnterTransition()
             viewTreeObserver.addOnPreDrawListener {
                 startPostponedEnterTransition()
@@ -113,8 +121,18 @@ class MainFragment : Fragment(), NotesAdapter.OnClickListener {
 
     private fun setupAddNoteFab() {
         binding.addNoteFab.setOnClickListener {
-            val directions = MainFragmentDirections.actionMainFragmentToCrudFragment("newNote")
+            val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment()
             findNavController().navigate(directions)
+        }
+    }
+
+    private fun setupNotesObserver() {
+        viewModel.notes.observe(viewLifecycleOwner) { resource ->
+            if (resource.status == Status.SUCCESS) {
+                resource.data?.let {
+                    adapter.setNotes(it)
+                }
+            }
         }
     }
 }

@@ -13,4 +13,5 @@
     <!-- Crud fragment-->
     <string name="title">Title …</string>
     <string name="type_text_here">Type note here …</string>
+    <string name="empty_note_deleted">Empty note was deleted</string>
 </resources>

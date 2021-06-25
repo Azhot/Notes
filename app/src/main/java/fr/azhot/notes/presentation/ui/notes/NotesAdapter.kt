@@ -1,20 +1,30 @@
-package fr.azhot.notes.presentation.ui.main
+package fr.azhot.notes.presentation.ui.notes
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
 
-class NotesAdapter(notes: List<Note>, private val listener: OnClickListener) :
+class NotesAdapter(private val listener: OnClickListener) :
     RecyclerView.Adapter<NotesAdapter.ViewHolder>() {
 
     // variables
-    private val notes: MutableList<Pair<Note, Boolean>> = notes.map { it to false }.toMutableList()
+    private val differCallback = object : DiffUtil.ItemCallback<Note>() {
+        override fun areItemsTheSame(oldItem: Note, newItem: Note) =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: Note, newItem: Note) =
+            oldItem.toString() == newItem.toString()
+    }
+    private val differ = AsyncListDiffer(this, differCallback)
+    private val selected = mutableListOf<Note>()
 
 
     // listener
@@ -25,7 +35,7 @@ class NotesAdapter(notes: List<Note>, private val listener: OnClickListener) :
 
 
     // viewHolder
-    class ViewHolder(
+    inner class ViewHolder(
         private val binding: CellNoteBinding,
         private val listener: OnClickListener
     ) :
@@ -44,6 +54,7 @@ class NotesAdapter(notes: List<Note>, private val listener: OnClickListener) :
             setupSharedElementTransition(note.id)
             setupNoteTitle(note.title)
             setupNoteText(note.text)
+            setupIfSelected(note)
             binding.root.setOnClickListener(this)
             binding.root.setOnLongClickListener(this)
         }
@@ -64,8 +75,8 @@ class NotesAdapter(notes: List<Note>, private val listener: OnClickListener) :
             binding.text.visibility = if (text.isEmpty()) View.GONE else View.VISIBLE
         }
 
-        fun setSelected(selected: Boolean) {
-            binding.root.elevation = if (selected) 16F else 0F
+        fun setupIfSelected(note: Note) {
+            binding.root.elevation = if (selected.contains(note)) 16F else 0F
         }
     }
 
@@ -83,63 +94,43 @@ class NotesAdapter(notes: List<Note>, private val listener: OnClickListener) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(notes[position].first)
-        holder.setSelected(notes[position].second)
+        holder.bind(differ.currentList[position])
     }
 
     override fun getItemCount(): Int {
-        return notes.count()
+        return differ.currentList.size
     }
 
 
-    // CRUD functions
+    // functions
+    fun setNotes(notes: List<Note>) {
+        differ.submitList(notes)
+    }
+
     @Throws(IndexOutOfBoundsException::class)
     fun get(position: Int): Note {
-        return notes[position].first
+        return differ.currentList[position]
     }
 
-    fun add(note: Note) {
-        notes.add(note to false)
-        notifyItemInserted(notes.lastIndex)
-    }
-
-    private fun delete(position: Int) {
-        notes.removeAt(position)
-        notifyItemRemoved(position)
-    }
-
-
-    // Selection functions
     fun isInSelectionMode(): Boolean {
-        for (pair in notes) {
-            if (pair.second) return true
-        }
-        return false
+        return selected.isNotEmpty()
     }
 
     fun switchSelectedState(position: Int) {
-        notes[position] = if (notes[position].second) {
-            notes[position].first to false
+        val note = differ.currentList[position]
+        if (selected.contains(note)) {
+            selected.remove(note)
         } else {
-            notes[position].first to true
+            selected.add(note)
         }
         notifyItemChanged(position)
     }
 
     fun clearSelectedState() {
-        for (i in notes.indices) {
-            if (notes[i].second) {
-                notes[i] = notes[i].first to false
-                notifyItemChanged(i)
-            }
-        }
+        selected.clear()
     }
 
-    fun deleteSelected() {
-        for (i in notes.lastIndex downTo 0) {
-            if (notes[i].second) {
-                delete(i)
-            }
-        }
+    fun getSelectedNotes(): Array<out Note> {
+        return selected.toTypedArray().also { selected.clear() }
     }
 }

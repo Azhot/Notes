@@ -2,12 +2,16 @@ package fr.azhot.notes.domain.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
+@Entity(tableName = "note_table")
 data class Note(
-    var title: String = "",
-    var text: String = "",
-    val id: String = UUID.randomUUID().toString()
+    @ColumnInfo(name = "title") var title: String = "",
+    @ColumnInfo(name = "text") var text: String = "",
+    @PrimaryKey val id: String = UUID.randomUUID().toString()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",

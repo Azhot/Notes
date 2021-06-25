@@ -6,15 +6,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import fr.azhot.notes.data.database.DummyNotesGenerator
+import com.google.android.material.snackbar.Snackbar
+import fr.azhot.notes.R
 import fr.azhot.notes.databinding.FragmentCrudBinding
 import fr.azhot.notes.domain.model.Note
+import fr.azhot.notes.presentation.ui.main.MainViewModel
 import fr.azhot.notes.util.NEW_NOTE_TAG
 import fr.azhot.notes.util.SHORT_SHARED_ELEMENT_TRANSITION
 import fr.azhot.notes.util.TEXT_PREFIX
@@ -25,14 +27,10 @@ class CrudFragment : Fragment() {
     // variables
     private lateinit var binding: FragmentCrudBinding
     private lateinit var note: Note
+    private val viewModel: MainViewModel by activityViewModels()
 
 
     // overridden functions
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initializeNote()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +41,7 @@ class CrudFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initializeNote()
         setupSharedElementTransition()
         setupNoteTitle()
         setupNoteText()
@@ -50,13 +49,17 @@ class CrudFragment : Fragment() {
 
     override fun onDestroy() {
         if (note.title.isEmpty() && note.text.isEmpty()) {
-            if (note.id != NEW_NOTE_TAG) {
-                DummyNotesGenerator.deleteNote(note)
-            }
-            Toast.makeText(context, "Empty note was deleted", Toast.LENGTH_SHORT).show()
+            viewModel.deleteNote(note)
+            Snackbar.make(
+                binding.root,
+                getString(R.string.empty_note_deleted),
+                Snackbar.LENGTH_SHORT
+            ).show()
         } else {
             if (note.id == NEW_NOTE_TAG) {
-                DummyNotesGenerator.addNote(Note(note.title, note.text))
+                viewModel.insertNote(Note(note.title, note.text))
+            } else {
+                viewModel.updateNote(note)
             }
         }
         super.onDestroy()
@@ -65,17 +68,13 @@ class CrudFragment : Fragment() {
 
     // functions
     private fun initializeNote() {
-        val args: CrudFragmentArgs by navArgs()
-        if (args.noteId == NEW_NOTE_TAG) {
-            note = Note(id = args.noteId)
-        } else {
-            try {
-                note = DummyNotesGenerator.getNote(args.noteId)
-            } catch (e: NoSuchElementException) {
-                note = Note()
-                findNavController().navigateUp()
-                Log.wtf(this::class.simpleName, "Could not fetch note data from Database")
-            }
+        try {
+            val args: CrudFragmentArgs by navArgs()
+            note = args.note ?: Note(id = NEW_NOTE_TAG)
+        } catch (e: Exception) {
+            note = Note()
+            findNavController().navigateUp()
+            Log.wtf(this::class.simpleName, "Could not pass note between fragments", e)
         }
     }
 
@@ -88,9 +87,7 @@ class CrudFragment : Fragment() {
         sharedElementEnterTransition = TransitionInflater
             .from(this.context)
             .inflateTransition(android.R.transition.move)
-            .apply {
-                duration = SHORT_SHARED_ELEMENT_TRANSITION
-            }
+            .also { it.duration = SHORT_SHARED_ELEMENT_TRANSITION }
         ViewCompat.setTransitionName(binding.title, "$TITLE_PREFIX${note.id}")
         ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${note.id}")
     }
@@ -98,20 +95,14 @@ class CrudFragment : Fragment() {
     private fun setupNoteTitle() {
         binding.title.apply {
             setText(note.title)
-            doAfterTextChanged {
-                note.title = (it ?: "").toString()
-                DummyNotesGenerator.updateNote(note)
-            }
+            doAfterTextChanged { note.title = (it ?: "").toString() }
         }
     }
 
     private fun setupNoteText() {
         binding.text.apply {
             setText(note.text)
-            doAfterTextChanged {
-                note.text = (it ?: "").toString()
-                DummyNotesGenerator.updateNote(note)
-            }
+            doAfterTextChanged { note.text = (it ?: "").toString() }
         }
     }
 }
