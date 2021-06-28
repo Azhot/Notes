@@ -8,18 +8,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper.*
 import fr.azhot.notes.R
-import fr.azhot.notes.data.util.Status
 import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.databinding.FragmentNotesBinding
 import fr.azhot.notes.presentation.ui.main.MainViewModel
+import fr.azhot.notes.presentation.util.ViewState
 import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
+import java.util.*
 
 class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
 
     // variables
-    private lateinit var binding: FragmentNotesBinding
+    private var _binding: FragmentNotesBinding? = null
+    private val binding get() = _binding!!
     private lateinit var adapter: NotesAdapter
     private val viewModel: MainViewModel by activityViewModels()
 
@@ -30,13 +33,15 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        _binding = FragmentNotesBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
-        return setupViewBinding(container)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        viewModel.fetchNotes()
         setupNotesRecyclerView()
         setupExtendedFab()
         setupAddNoteFab()
@@ -53,7 +58,7 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
             R.id.delete -> {
                 adapter.getSelectedNotes().let { selectedNotes ->
                     if (selectedNotes.isNotEmpty()) {
-                        viewModel.deleteNote(*selectedNotes)
+                        viewModel.deleteNotes(*selectedNotes)
                     }
                 }
                 return true
@@ -65,6 +70,10 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     // callbacks
     override fun onClick(position: Int, binding: CellNoteBinding) {
@@ -87,11 +96,6 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
 
 
     // functions
-    private fun setupViewBinding(container: ViewGroup?): View {
-        binding = FragmentNotesBinding.inflate(layoutInflater, container, false)
-        return binding.root
-    }
-
     private fun setupNotesRecyclerView() {
         adapter = NotesAdapter(this)
         binding.notesRecyclerView.apply {
@@ -127,11 +131,9 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
     }
 
     private fun setupNotesObserver() {
-        viewModel.notes.observe(viewLifecycleOwner) { resource ->
-            if (resource.status == Status.SUCCESS) {
-                resource.data?.let {
-                    adapter.setNotes(it)
-                }
+        viewModel.viewState.observe(viewLifecycleOwner) { viewState ->
+            if (viewState is ViewState.RefreshNotesState) {
+                adapter.setNotes(viewState.data)
             }
         }
     }

@@ -1,48 +1,44 @@
 package fr.azhot.notes.presentation.ui.main
 
 import androidx.lifecycle.*
-import fr.azhot.notes.data.util.Resource
 import fr.azhot.notes.domain.model.Note
+import fr.azhot.notes.presentation.util.ViewState
 import fr.azhot.notes.repository.NoteRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val noteRepository: NoteRepository) : ViewModel() {
 
-    private val _notes = MediatorLiveData<Resource<List<Note>>>()
-    val notes: LiveData<Resource<List<Note>>>
-        get() = _notes
+    private val _viewState = MediatorLiveData<ViewState>()
+    val viewState: LiveData<ViewState> get() = _viewState
 
-    init {
-        setDataSource()
-    }
-
-    private fun setDataSource() {
-        _notes.addSource(noteRepository.getAll()) { notes ->
-            _notes.postValue(Resource.loading(null))
+    fun fetchNotes() {
+        _viewState.addSource(noteRepository.getAllNotes()) { notes ->
+            _viewState.postValue(ViewState.LoadingState)
             try {
-                _notes.postValue(Resource.success(notes))
+                _viewState.postValue(ViewState.RefreshNotesState(notes))
             } catch (e: Exception) {
-                _notes.postValue(
-                    Resource.error(
-                        data = null,
-                        message = e.message ?: "An error has occurred !"
-                    )
-                )
+                _viewState.postValue(ViewState.ErrorState(e.message ?: "An error has occurred !"))
             }
         }
     }
 
-    fun insertNote(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
-        noteRepository.insert(*notes)
+    fun upsertNote(note: Note) = viewModelScope.launch(Dispatchers.IO) {
+        _viewState.postValue(ViewState.LoadingState)
+        noteRepository.upsertNote(note)
+        _viewState.postValue(ViewState.UpsertNoteState(note))
     }
 
-    fun updateNote(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
-        noteRepository.update(*notes)
+    fun deleteEmptyNote(note: Note) = viewModelScope.launch(Dispatchers.IO) {
+        _viewState.postValue(ViewState.LoadingState)
+        noteRepository.deleteNote(note)
+        _viewState.postValue(ViewState.EmptyNoteDeleteState(note))
     }
 
-    fun deleteNote(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
-        noteRepository.delete(*notes)
+    fun deleteNotes(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
+        _viewState.postValue(ViewState.LoadingState)
+        noteRepository.deleteNotes(*notes)
+        _viewState.postValue(ViewState.DeleteNotesState(*notes))
     }
 }
 

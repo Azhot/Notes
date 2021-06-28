@@ -45,7 +45,7 @@ abstract class NoteDatabase : RoomDatabase() {
             super.onCreate(db)
             INSTANCE?.let { database ->
                 scope.launch(Dispatchers.IO) {
-                    database.noteDao().insert(
+                    database.noteDao().insertNotes(
                         Note(
                             title = "Malesuada fames ac ante ipsum",
                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit."

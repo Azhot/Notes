@@ -27,60 +27,6 @@ class NotesAdapter(private val listener: OnClickListener) :
     private val selected = mutableListOf<Note>()
 
 
-    // listener
-    interface OnClickListener {
-        fun onClick(position: Int, binding: CellNoteBinding)
-        fun onLongClick(position: Int)
-    }
-
-
-    // viewHolder
-    inner class ViewHolder(
-        private val binding: CellNoteBinding,
-        private val listener: OnClickListener
-    ) :
-        RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
-
-        override fun onClick(v: View?) {
-            listener.onClick(bindingAdapterPosition, binding)
-        }
-
-        override fun onLongClick(v: View?): Boolean {
-            listener.onLongClick(bindingAdapterPosition)
-            return true
-        }
-
-        fun bind(note: Note) {
-            setupSharedElementTransition(note.id)
-            setupNoteTitle(note.title)
-            setupNoteText(note.text)
-            setupIfSelected(note)
-            binding.root.setOnClickListener(this)
-            binding.root.setOnLongClickListener(this)
-        }
-
-        private fun setupSharedElementTransition(noteId: String) {
-            ViewCompat.setTransitionName(binding.title, "$TITLE_PREFIX${noteId}")
-            ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${noteId}")
-        }
-
-        private fun setupNoteTitle(title: String) {
-            binding.title.text = title
-            binding.title.visibility = if (title.isEmpty()) View.GONE else View.VISIBLE
-
-        }
-
-        private fun setupNoteText(text: String) {
-            binding.text.text = text
-            binding.text.visibility = if (text.isEmpty()) View.GONE else View.VISIBLE
-        }
-
-        fun setupIfSelected(note: Note) {
-            binding.root.elevation = if (selected.contains(note)) 16F else 0F
-        }
-    }
-
-
     // overridden functions
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -133,4 +79,59 @@ class NotesAdapter(private val listener: OnClickListener) :
     fun getSelectedNotes(): Array<out Note> {
         return selected.toTypedArray().also { selected.clear() }
     }
+
+
+    // listener
+    interface OnClickListener {
+        fun onClick(position: Int, binding: CellNoteBinding)
+        fun onLongClick(position: Int)
+    }
+
+
+    // viewHolder
+    inner class ViewHolder(
+        private val binding: CellNoteBinding,
+        private val listener: OnClickListener
+    ) :
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
+
+        override fun onClick(v: View?) {
+            listener.onClick(bindingAdapterPosition, binding)
+        }
+
+        override fun onLongClick(v: View?): Boolean {
+            listener.onLongClick(bindingAdapterPosition)
+            return true
+        }
+
+        fun bind(note: Note) {
+            setupSharedElementTransition(note.id)
+            setupNoteTitle(note.title)
+            setupNoteText(note.text)
+            setupIfSelected(note)
+            binding.root.setOnClickListener(this)
+            binding.root.setOnLongClickListener(this)
+        }
+
+        private fun setupSharedElementTransition(noteId: String) {
+            ViewCompat.setTransitionName(binding.title, "$TITLE_PREFIX${noteId}")
+            ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${noteId}")
+        }
+
+        private fun setupNoteTitle(title: String) {
+            binding.title.text = title
+            binding.title.visibility = if (title.isEmpty()) View.GONE else View.VISIBLE
+
+        }
+
+        private fun setupNoteText(text: String) {
+            binding.text.text = text
+            binding.text.visibility = if (text.isEmpty()) View.GONE else View.VISIBLE
+        }
+
+        private fun setupIfSelected(note: Note) {
+            binding.root.elevation = if (selected.contains(note)) 16F else 0F
+        }
+    }
+
 }

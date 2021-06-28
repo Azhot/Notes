@@ -4,10 +4,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
+import fr.azhot.notes.R
 import fr.azhot.notes.application.NotesApplication
-import fr.azhot.notes.data.util.Status
 import fr.azhot.notes.databinding.ActivityMainBinding
+import fr.azhot.notes.presentation.ui.notes.NotesFragmentDirections
+import fr.azhot.notes.presentation.util.ViewState
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,13 +39,33 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupNotesObserver() {
-        viewModel.notes.observe(this) { resource ->
-            when (resource.status) {
-                Status.LOADING -> binding.progressBar.visibility = View.VISIBLE
-                Status.SUCCESS -> binding.progressBar.visibility = View.GONE
-                Status.ERROR -> {
-                    Snackbar.make(binding.root, resource.message!!, Snackbar.LENGTH_SHORT).show()
-                    binding.progressBar.visibility = View.GONE
+        viewModel.viewState.observe(this) { viewState ->
+
+            when (viewState is ViewState.LoadingState) {
+                true -> binding.progressBar.visibility = View.VISIBLE
+                false -> binding.progressBar.visibility = View.GONE
+            }
+
+            when (viewState) {
+                is ViewState.ErrorState -> Snackbar.make(
+                    binding.root,
+                    viewState.message,
+                    Snackbar.LENGTH_SHORT
+                ).show()
+                is ViewState.EmptyNoteDeleteState -> {
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.empty_note_deleted),
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setAction(getString(R.string.cancel)) {
+                            val directions =
+                                NotesFragmentDirections.actionMainFragmentToCrudFragment(viewState.note)
+                            findNavController(binding.navHostFragment.id).navigate(directions)
+                        }
+                        .show()
+                }
+                else -> {
                 }
             }
         }

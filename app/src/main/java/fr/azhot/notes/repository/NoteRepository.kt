@@ -6,19 +6,19 @@ import fr.azhot.notes.domain.model.Note
 
 class NoteRepository(private val noteDao: NoteDao) {
 
-    fun getAll(): LiveData<List<Note>> {
-        return noteDao.getAll()
+    fun getAllNotes(): LiveData<List<Note>> {
+        return noteDao.getAllNotes()
     }
 
-    suspend fun insert(vararg notes: Note) {
-        noteDao.insert(*notes)
+    suspend fun deleteNote(note: Note) {
+        noteDao.deleteNote(note)
     }
 
-    suspend fun update(vararg notes: Note) {
-        noteDao.update(*notes)
+    suspend fun deleteNotes(vararg notes: Note) {
+        noteDao.deleteNotes(*notes)
     }
 
-    suspend fun delete(vararg notes: Note) {
-        noteDao.delete(*notes)
+    suspend fun upsertNote(note: Note) {
+        noteDao.upsertNote(note)
     }
 }
