@@ -11,17 +11,20 @@ import java.util.*
 data class Note(
     @ColumnInfo(name = "title") var title: String = "",
     @ColumnInfo(name = "text") var text: String = "",
-    @PrimaryKey val id: String = UUID.randomUUID().toString()
+    @ColumnInfo(name = "position") var position: Int,
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
+        parcel.readInt(),
         parcel.readString() ?: "",
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(title)
         parcel.writeString(text)
+        parcel.writeInt(position)
         parcel.writeString(id)
     }
 

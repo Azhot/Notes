@@ -13,7 +13,7 @@ class MainViewModel(private val noteRepository: NoteRepository) : ViewModel() {
     val viewState: LiveData<ViewState> get() = _viewState
 
     fun fetchNotes() {
-        _viewState.addSource(noteRepository.getAllNotes()) { notes ->
+        _viewState.addSource(noteRepository.getAllNotesSorted()) { notes ->
             _viewState.postValue(ViewState.LoadingState)
             try {
                 _viewState.postValue(ViewState.RefreshNotesState(notes))
@@ -27,6 +27,12 @@ class MainViewModel(private val noteRepository: NoteRepository) : ViewModel() {
         _viewState.postValue(ViewState.LoadingState)
         noteRepository.upsertNote(note)
         _viewState.postValue(ViewState.UpsertNoteState(note))
+    }
+
+    fun updateNotes(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
+        _viewState.postValue(ViewState.LoadingState)
+        noteRepository.updateNotes(*notes)
+        _viewState.postValue(ViewState.UpdateNotesState(*notes))
     }
 
     fun deleteEmptyNote(note: Note) = viewModelScope.launch(Dispatchers.IO) {

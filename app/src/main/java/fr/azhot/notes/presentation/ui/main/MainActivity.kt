@@ -60,7 +60,10 @@ class MainActivity : AppCompatActivity() {
                     )
                         .setAction(getString(R.string.cancel)) {
                             val directions =
-                                NotesFragmentDirections.actionMainFragmentToCrudFragment(viewState.note)
+                                NotesFragmentDirections.actionMainFragmentToCrudFragment(
+                                    viewState.note,
+                                    viewState.note.position
+                                )
                             findNavController(binding.navHostFragment.id).navigate(directions)
                         }
                         .show()

@@ -29,6 +29,9 @@
             android:defaultValue="@null"
             app:argType=".domain.model.Note"
             app:nullable="true" />
+        <argument
+            android:name="position"
+            app:argType="integer" />
     </fragment>
 
 </navigation>

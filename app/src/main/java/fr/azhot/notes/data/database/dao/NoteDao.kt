@@ -7,8 +7,8 @@ import fr.azhot.notes.domain.model.Note
 @Dao
 interface NoteDao {
 
-    @Query("SELECT * FROM note_table")
-    fun getAllNotes(): LiveData<List<Note>>
+    @Query("SELECT * FROM note_table ORDER BY `position` DESC")
+    fun getAllNotesSorted(): LiveData<List<Note>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertNote(note: Note): Long
@@ -18,6 +18,9 @@ interface NoteDao {
 
     @Update
     suspend fun updateNote(note: Note)
+
+    @Update
+    suspend fun updateNotes(vararg notes: Note)
 
     @Delete
     suspend fun deleteNote(note: Note)

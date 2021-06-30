@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import fr.azhot.notes.R
 import fr.azhot.notes.databinding.CellNoteBinding
@@ -24,6 +25,7 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
     private var _binding: FragmentNotesBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: NotesAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
     private val viewModel: MainViewModel by activityViewModels()
 
 
@@ -56,7 +58,7 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.delete -> {
-                adapter.getSelectedNotes().let { selectedNotes ->
+                adapter.getSelectedNotesAndClear().let { selectedNotes ->
                     if (selectedNotes.isNotEmpty()) {
                         viewModel.deleteNotes(*selectedNotes)
                     }
@@ -72,17 +74,20 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        viewModel.updateNotes(*adapter.currentNotes.toTypedArray())
         _binding = null
     }
 
-    // callbacks
-    override fun onClick(position: Int, binding: CellNoteBinding) {
+    override fun onClick(viewHolder: NotesAdapter.ViewHolder, binding: CellNoteBinding) {
         if (adapter.isInSelectionMode()) {
-            adapter.switchSelectedState(position)
+            viewHolder.setSelected()
             return
         }
-        val note = adapter.get(position)
-        val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(note)
+        val note = adapter.currentNotes[viewHolder.bindingAdapterPosition]
+        val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(
+            note,
+            adapter.currentNotes.size
+        )
         val extras = FragmentNavigatorExtras(
             binding.title to "$TITLE_PREFIX${note.id}",
             binding.text to "$TEXT_PREFIX${note.id}"
@@ -90,16 +95,23 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
         findNavController().navigate(directions, extras)
     }
 
-    override fun onLongClick(position: Int) {
-        adapter.switchSelectedState(position)
+    override fun onLongClick(viewHolder: NotesAdapter.ViewHolder) {
+        if (adapter.isInSelectionMode()) {
+            viewHolder.setSelected()
+            return
+        }
+        viewHolder.setSelected()
+        itemTouchHelper.startDrag(viewHolder)
     }
 
 
     // functions
     private fun setupNotesRecyclerView() {
         adapter = NotesAdapter(this)
+        itemTouchHelper = ItemTouchHelper(adapter.itemTouchCallback)
         binding.notesRecyclerView.apply {
             adapter = this@NotesFragment.adapter
+            itemTouchHelper.attachToRecyclerView(this)
             postponeEnterTransition()
             viewTreeObserver.addOnPreDrawListener {
                 startPostponedEnterTransition()
@@ -125,7 +137,9 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
 
     private fun setupAddNoteFab() {
         binding.addNoteFab.setOnClickListener {
-            val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment()
+            val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(
+                position = adapter.currentNotes.size
+            )
             findNavController().navigate(directions)
         }
     }

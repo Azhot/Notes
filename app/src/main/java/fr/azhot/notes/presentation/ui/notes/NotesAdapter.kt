@@ -4,26 +4,62 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
 import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
+import java.util.*
 
 class NotesAdapter(private val listener: OnClickListener) :
     RecyclerView.Adapter<NotesAdapter.ViewHolder>() {
 
-    // variables
-    private val differCallback = object : DiffUtil.ItemCallback<Note>() {
-        override fun areItemsTheSame(oldItem: Note, newItem: Note) =
-            oldItem.id == newItem.id
+    // callbacks
+    val itemTouchCallback = object : Callback() {
+        override fun isLongPressDragEnabled() = false
+        override fun isItemViewSwipeEnabled() = false
 
-        override fun areContentsTheSame(oldItem: Note, newItem: Note) =
-            oldItem.toString() == newItem.toString()
+        override fun getMovementFlags(r: RecyclerView, v: RecyclerView.ViewHolder) =
+            makeMovementFlags(UP or DOWN or START or END, 0)
+
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            val from = viewHolder.bindingAdapterPosition
+            val to = target.bindingAdapterPosition
+            swap(notes, from, to)
+            notifyItemMoved(from, to)
+            return true
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+
+        fun swap(notes: MutableList<Note>, from: Int, to: Int) {
+            if (from < to) {
+                for (i in from until to) {
+                    Collections.swap(notes, i, i + 1)
+                    val temp = notes[i].position
+                    notes[i].position = notes[i + 1].position
+                    notes[i + 1].position = temp
+                }
+            } else {
+                for (i in from downTo to + 1) {
+                    Collections.swap(notes, i, i - 1)
+                    val temp = notes[i].position
+                    notes[i].position = notes[i - 1].position
+                    notes[i - 1].position = temp
+                }
+            }
+        }
     }
-    private val differ = AsyncListDiffer(this, differCallback)
+
+
+    // variables
+    private var notes = mutableListOf<Note>()
+    val currentNotes get() = notes
     private val selected = mutableListOf<Note>()
 
 
@@ -40,51 +76,32 @@ class NotesAdapter(private val listener: OnClickListener) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(differ.currentList[position])
+        holder.bind(notes[position])
     }
 
-    override fun getItemCount(): Int {
-        return differ.currentList.size
-    }
+    override fun getItemCount() = notes.size
 
 
     // functions
     fun setNotes(notes: List<Note>) {
-        differ.submitList(notes)
+        this.notes = notes.toMutableList()
+        notifyDataSetChanged()
     }
 
-    @Throws(IndexOutOfBoundsException::class)
-    fun get(position: Int): Note {
-        return differ.currentList[position]
-    }
+    fun isInSelectionMode() = selected.isNotEmpty()
 
-    fun isInSelectionMode(): Boolean {
-        return selected.isNotEmpty()
-    }
-
-    fun switchSelectedState(position: Int) {
-        val note = differ.currentList[position]
-        if (selected.contains(note)) {
-            selected.remove(note)
-        } else {
-            selected.add(note)
-        }
-        notifyItemChanged(position)
-    }
+    fun getSelectedNotesAndClear(): Array<out Note> =
+        selected.toTypedArray().also { clearSelectedState() }
 
     fun clearSelectedState() {
         selected.clear()
     }
 
-    fun getSelectedNotes(): Array<out Note> {
-        return selected.toTypedArray().also { selected.clear() }
-    }
-
 
     // listener
     interface OnClickListener {
-        fun onClick(position: Int, binding: CellNoteBinding)
-        fun onLongClick(position: Int)
+        fun onClick(viewHolder: ViewHolder, binding: CellNoteBinding)
+        fun onLongClick(viewHolder: ViewHolder)
     }
 
 
@@ -96,11 +113,11 @@ class NotesAdapter(private val listener: OnClickListener) :
         RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
         override fun onClick(v: View?) {
-            listener.onClick(bindingAdapterPosition, binding)
+            listener.onClick(this, binding)
         }
 
         override fun onLongClick(v: View?): Boolean {
-            listener.onLongClick(bindingAdapterPosition)
+            listener.onLongClick(this)
             return true
         }
 
@@ -108,9 +125,19 @@ class NotesAdapter(private val listener: OnClickListener) :
             setupSharedElementTransition(note.id)
             setupNoteTitle(note.title)
             setupNoteText(note.text)
-            setupIfSelected(note)
-            binding.root.setOnClickListener(this)
-            binding.root.setOnLongClickListener(this)
+            setElevation(note)
+            itemView.setOnClickListener(this)
+            itemView.setOnLongClickListener(this)
+        }
+
+        fun setSelected() {
+            val note = notes[bindingAdapterPosition]
+            if (selected.contains(note)) {
+                selected.remove(note)
+            } else {
+                selected.add(note)
+            }
+            setElevation(note)
         }
 
         private fun setupSharedElementTransition(noteId: String) {
@@ -129,9 +156,8 @@ class NotesAdapter(private val listener: OnClickListener) :
             binding.text.visibility = if (text.isEmpty()) View.GONE else View.VISIBLE
         }
 
-        private fun setupIfSelected(note: Note) {
-            binding.root.elevation = if (selected.contains(note)) 16F else 0F
+        private fun setElevation(note: Note) {
+            itemView.elevation = if (selected.contains(note)) 16F else 0F
         }
     }
-
 }

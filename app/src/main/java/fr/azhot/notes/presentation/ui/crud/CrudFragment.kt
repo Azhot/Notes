@@ -57,7 +57,7 @@ class CrudFragment : Fragment() {
     // functions
     private fun initializeNote() {
         val args: CrudFragmentArgs by navArgs()
-        note = args.note ?: Note()
+        note = args.note ?: Note(position = args.position)
     }
 
     private fun setupSharedElementTransition() {
