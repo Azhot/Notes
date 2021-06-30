@@ -4,8 +4,9 @@
     <color name="primaryDark">#C87864</color>
     <color name="secondary">#82AAAA</color>
     <color name="secondaryDark">#507D7D</color>
-    <color name="secondaryLight">#D7EBEB</color>
+    <color name="secondaryLight">#E1EBF5</color>
     <color name="textHint">#A0BEBE</color>
+    <color name="selectedBackground">#0DFFAA91</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

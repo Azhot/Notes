@@ -10,8 +10,12 @@ class NoteRepository(private val noteDao: NoteDao) {
         return noteDao.getAllNotesSorted()
     }
 
-    suspend fun upsertNote(note: Note) {
-        noteDao.upsertNote(note)
+    suspend fun updateNote(note: Note) {
+        noteDao.updateNote(note)
+    }
+
+    suspend fun insertNote(note: Note): Long {
+        return noteDao.insertNote(note)
     }
 
     suspend fun updateNotes(vararg notes: Note) {

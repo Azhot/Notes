@@ -27,9 +27,4 @@ interface NoteDao {
 
     @Delete
     suspend fun deleteNotes(vararg notes: Note)
-
-    @Transaction
-    suspend fun upsertNote(note: Note) {
-        if (insertNote(note) == -1L) updateNote(note)
-    }
 }

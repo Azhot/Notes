@@ -13,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/ic_note_background"
+        android:background="@drawable/ic_note_background_selector"
         android:padding="8dp">
 
         <TextView

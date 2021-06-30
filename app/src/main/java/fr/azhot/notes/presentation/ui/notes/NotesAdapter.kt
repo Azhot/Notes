@@ -12,7 +12,7 @@ import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
 import java.util.*
 
-class NotesAdapter(private val listener: OnClickListener) :
+class NotesAdapter(private val listener: NotesAdapterListener) :
     RecyclerView.Adapter<NotesAdapter.ViewHolder>() {
 
     // callbacks
@@ -36,6 +36,11 @@ class NotesAdapter(private val listener: OnClickListener) :
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            listener.onDragEnd(*notes.toTypedArray())
+            super.clearView(recyclerView, viewHolder)
+        }
 
         fun swap(notes: MutableList<Note>, from: Int, to: Int) {
             if (from < to) {
@@ -84,8 +89,49 @@ class NotesAdapter(private val listener: OnClickListener) :
 
     // functions
     fun setNotes(notes: List<Note>) {
-        this.notes = notes.toMutableList()
-        notifyDataSetChanged()
+        when {
+            this.notes == notes -> return
+            this.notes.size == notes.size -> {
+                for (i in this.notes.indices) {
+                    if (this.notes[i] != notes[i]) {
+                        this.notes[i] = notes[i]
+                        notifyItemChanged(i)
+                    }
+                }
+            }
+            this.notes.size < notes.size -> {
+                for (i in notes.indices) {
+                    if (!this.notes.contains(notes[i])) {
+                        this.notes.add(i, notes[i])
+                        notifyItemInserted(i)
+                    }
+                }
+            }
+            this.notes.size > notes.size -> {
+                for (i in this.notes.lastIndex downTo 0) {
+                    if (!notes.contains(this.notes[i])) {
+                        this.notes.removeAt(i)
+                        notifyItemRemoved(i)
+                    }
+                }
+            }
+        }
+    }
+
+    fun insertNote(note: Note) {
+        this.notes.add(0, note)
+        notifyItemInserted(0)
+    }
+
+    fun updateNote(note: Note): Int {
+        for (i in notes.indices) {
+            if (notes[i].id == note.id) {
+                notes[i] = note
+                notifyItemChanged(i)
+                return i
+            }
+        }
+        return 0
     }
 
     fun isInSelectionMode() = selected.isNotEmpty()
@@ -99,16 +145,17 @@ class NotesAdapter(private val listener: OnClickListener) :
 
 
     // listener
-    interface OnClickListener {
+    interface NotesAdapterListener {
         fun onClick(viewHolder: ViewHolder, binding: CellNoteBinding)
         fun onLongClick(viewHolder: ViewHolder)
+        fun onDragEnd(vararg notes: Note)
     }
 
 
     // viewHolder
     inner class ViewHolder(
         private val binding: CellNoteBinding,
-        private val listener: OnClickListener
+        private val listener: NotesAdapterListener
     ) :
         RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
@@ -134,8 +181,10 @@ class NotesAdapter(private val listener: OnClickListener) :
             val note = notes[bindingAdapterPosition]
             if (selected.contains(note)) {
                 selected.remove(note)
+                itemView.isSelected = false
             } else {
                 selected.add(note)
+                itemView.isSelected = true
             }
             setElevation(note)
         }

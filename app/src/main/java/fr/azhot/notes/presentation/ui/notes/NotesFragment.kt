@@ -13,13 +13,14 @@ import androidx.recyclerview.widget.ItemTouchHelper.*
 import fr.azhot.notes.R
 import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.databinding.FragmentNotesBinding
+import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.ui.main.MainViewModel
 import fr.azhot.notes.presentation.util.ViewState
 import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
 import java.util.*
 
-class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
+class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
 
     // variables
     private var _binding: FragmentNotesBinding? = null
@@ -43,11 +44,10 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
-        viewModel.fetchNotes()
         setupNotesRecyclerView()
         setupExtendedFab()
         setupAddNoteFab()
-        setupNotesObserver()
+        setupViewStateObserver()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -74,7 +74,6 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.updateNotes(*adapter.currentNotes.toTypedArray())
         _binding = null
     }
 
@@ -84,10 +83,7 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
             return
         }
         val note = adapter.currentNotes[viewHolder.bindingAdapterPosition]
-        val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(
-            note,
-            adapter.currentNotes.size
-        )
+        val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(note)
         val extras = FragmentNavigatorExtras(
             binding.title to "$TITLE_PREFIX${note.id}",
             binding.text to "$TEXT_PREFIX${note.id}"
@@ -102,6 +98,10 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
         }
         viewHolder.setSelected()
         itemTouchHelper.startDrag(viewHolder)
+    }
+
+    override fun onDragEnd(vararg notes: Note) {
+        viewModel.updateNotes(*notes)
     }
 
 
@@ -137,17 +137,24 @@ class NotesFragment : Fragment(), NotesAdapter.OnClickListener {
 
     private fun setupAddNoteFab() {
         binding.addNoteFab.setOnClickListener {
-            val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(
-                position = adapter.currentNotes.size
-            )
+            val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment()
             findNavController().navigate(directions)
         }
     }
 
-    private fun setupNotesObserver() {
+    private fun setupViewStateObserver() {
         viewModel.viewState.observe(viewLifecycleOwner) { viewState ->
-            if (viewState is ViewState.RefreshNotesState) {
-                adapter.setNotes(viewState.data)
+            when (viewState) {
+                is ViewState.FetchNotesState -> adapter.setNotes(viewState.data)
+                is ViewState.InsertNoteState -> {
+                    adapter.insertNote(viewState.note)
+                    binding.notesRecyclerView.smoothScrollToPosition(0)
+                }
+                is ViewState.UpdateNoteState -> {
+                    val position = adapter.updateNote(viewState.note)
+                    binding.notesRecyclerView.smoothScrollToPosition(position)
+                }
+                else -> return@observe
             }
         }
     }
