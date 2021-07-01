@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
 import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.domain.model.Note
+import fr.azhot.notes.util.ROOT_PREFIX
 import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
 import java.util.*
@@ -197,6 +198,7 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
         }
 
         private fun setupSharedElementTransition(noteId: String) {
+            ViewCompat.setTransitionName(binding.root, "$ROOT_PREFIX${noteId}")
             ViewCompat.setTransitionName(binding.title, "$TITLE_PREFIX${noteId}")
             ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${noteId}")
         }

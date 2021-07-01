@@ -16,6 +16,7 @@ import fr.azhot.notes.databinding.FragmentNotesBinding
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.ui.main.MainViewModel
 import fr.azhot.notes.presentation.util.ViewState
+import fr.azhot.notes.util.ROOT_PREFIX
 import fr.azhot.notes.util.TEXT_PREFIX
 import fr.azhot.notes.util.TITLE_PREFIX
 import java.util.*
@@ -79,12 +80,7 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
     override fun onClick(viewHolder: NotesAdapter.ViewHolder, binding: CellNoteBinding) {
         if (checkSelectionModeIsOn(viewHolder)) return
         val note = adapter.currentNotes[viewHolder.bindingAdapterPosition]
-        val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(note)
-        val extras = FragmentNavigatorExtras(
-            binding.title to "$TITLE_PREFIX${note.id}",
-            binding.text to "$TEXT_PREFIX${note.id}"
-        )
-        findNavController().navigate(directions, extras)
+        navigateToCrudFragment(note, binding)
     }
 
     override fun onLongClick(viewHolder: NotesAdapter.ViewHolder) {
@@ -172,5 +168,15 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
             return true
         }
         return false
+    }
+
+    private fun navigateToCrudFragment(note: Note, binding: CellNoteBinding) {
+        val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(note)
+        val extras = FragmentNavigatorExtras(
+            binding.root to "$ROOT_PREFIX${note.id}",
+            binding.title to "$TITLE_PREFIX${note.id}",
+            binding.text to "$TEXT_PREFIX${note.id}"
+        )
+        findNavController().navigate(directions, extras)
     }
 }
