@@ -38,7 +38,7 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
 
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-            listener.onDragEnd(*notes.toTypedArray())
+            listener.onDragEnd(viewHolder as ViewHolder, *notes.toTypedArray())
             super.clearView(recyclerView, viewHolder)
         }
 
@@ -136,11 +136,17 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
 
     fun isInSelectionMode() = selected.isNotEmpty()
 
+    fun getSelectedNotesCount() = selected.count()
+
     fun getSelectedNotesAndClear(): Array<out Note> =
         selected.toTypedArray().also { clearSelectedState() }
 
     fun clearSelectedState() {
-        selected.clear()
+        for (i in selected.lastIndex downTo 0) {
+            val note = selected[i]
+            selected.removeAt(i)
+            notifyItemChanged(notes.indexOf(note))
+        }
     }
 
 
@@ -148,7 +154,7 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
     interface NotesAdapterListener {
         fun onClick(viewHolder: ViewHolder, binding: CellNoteBinding)
         fun onLongClick(viewHolder: ViewHolder)
-        fun onDragEnd(vararg notes: Note)
+        fun onDragEnd(viewHolder: ViewHolder, vararg notes: Note)
     }
 
 
@@ -173,6 +179,7 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
             setupNoteTitle(note.title)
             setupNoteText(note.text)
             setElevation(note)
+            itemView.isSelected = selected.contains(note)
             itemView.setOnClickListener(this)
             itemView.setOnLongClickListener(this)
         }
@@ -206,7 +213,7 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
         }
 
         private fun setElevation(note: Note) {
-            itemView.elevation = if (selected.contains(note)) 16F else 0F
+            itemView.elevation = if (selected.contains(note)) 8F else 0F
         }
     }
 }

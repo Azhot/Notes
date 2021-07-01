@@ -43,7 +43,7 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        setupToolbar()
         setupNotesRecyclerView()
         setupExtendedFab()
         setupAddNoteFab()
@@ -56,12 +56,11 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        binding.toolbar.visibility = View.GONE
         when (item.itemId) {
             R.id.delete -> {
                 adapter.getSelectedNotesAndClear().let { selectedNotes ->
-                    if (selectedNotes.isNotEmpty()) {
-                        viewModel.deleteNotes(*selectedNotes)
-                    }
+                    viewModel.deleteNotes(*selectedNotes)
                 }
                 return true
             }
@@ -78,10 +77,7 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
     }
 
     override fun onClick(viewHolder: NotesAdapter.ViewHolder, binding: CellNoteBinding) {
-        if (adapter.isInSelectionMode()) {
-            viewHolder.setSelected()
-            return
-        }
+        if (checkSelectionModeIsOn(viewHolder)) return
         val note = adapter.currentNotes[viewHolder.bindingAdapterPosition]
         val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(note)
         val extras = FragmentNavigatorExtras(
@@ -92,20 +88,28 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
     }
 
     override fun onLongClick(viewHolder: NotesAdapter.ViewHolder) {
-        if (adapter.isInSelectionMode()) {
-            viewHolder.setSelected()
-            return
-        }
+        if (checkSelectionModeIsOn(viewHolder)) return
         viewHolder.setSelected()
         itemTouchHelper.startDrag(viewHolder)
     }
 
-    override fun onDragEnd(vararg notes: Note) {
+    override fun onDragEnd(viewHolder: NotesAdapter.ViewHolder, vararg notes: Note) {
         viewModel.updateNotes(*notes)
+        binding.toolbar.visibility = View.VISIBLE
+        binding.toolbar.title = adapter.getSelectedNotesCount().toString()
     }
 
 
     // functions
+    private fun setupToolbar() {
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        binding.toolbar.setNavigationIcon(R.drawable.ic_close_24)
+        binding.toolbar.setNavigationOnClickListener {
+            adapter.clearSelectedState()
+            binding.toolbar.visibility = View.GONE
+        }
+    }
+
     private fun setupNotesRecyclerView() {
         adapter = NotesAdapter(this)
         itemTouchHelper = ItemTouchHelper(adapter.itemTouchCallback)
@@ -150,12 +154,23 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
                     adapter.insertNote(viewState.note)
                     binding.notesRecyclerView.smoothScrollToPosition(0)
                 }
-                is ViewState.UpdateNoteState -> {
-                    val position = adapter.updateNote(viewState.note)
-                    binding.notesRecyclerView.smoothScrollToPosition(position)
-                }
+                is ViewState.UpdateNoteState -> adapter.updateNote(viewState.note)
                 else -> return@observe
             }
         }
+    }
+
+    private fun checkSelectionModeIsOn(viewHolder: NotesAdapter.ViewHolder): Boolean {
+        if (adapter.isInSelectionMode()) {
+            viewHolder.setSelected()
+            if (!adapter.isInSelectionMode()) {
+                this.binding.toolbar.visibility = View.GONE
+            }
+            if (adapter.getSelectedNotesCount() > 0) {
+                binding.toolbar.title = adapter.getSelectedNotesCount().toString()
+            }
+            return true
+        }
+        return false
     }
 }

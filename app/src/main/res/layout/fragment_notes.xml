@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     tools:context=".presentation.ui.notes.NotesFragment">
 
     <androidx.appcompat.widget.Toolbar
@@ -12,10 +13,10 @@
         android:layout_height="?android:actionBarSize"
         android:background="@color/white"
         android:elevation="4dp"
+        android:visibility="gone"
         android:theme="@style/Theme.Toolbar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:titleTextColor="@color/secondary" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/notes_recyclerView"
