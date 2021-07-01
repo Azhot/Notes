@@ -5,7 +5,7 @@ import androidx.room.*
 import fr.azhot.notes.domain.model.Note
 
 @Dao
-interface NoteDao {
+interface NotesDao {
 
     @Query("SELECT * FROM note_table ORDER BY `position` DESC")
     fun getAllNotesSorted(): LiveData<List<Note>>

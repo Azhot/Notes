@@ -1,32 +1,32 @@
 package fr.azhot.notes.repository
 
 import androidx.lifecycle.LiveData
-import fr.azhot.notes.data.database.dao.NoteDao
+import fr.azhot.notes.data.database.dao.NotesDao
 import fr.azhot.notes.domain.model.Note
 
-class NoteRepository(private val noteDao: NoteDao) {
+class NotesRepository(private val notesDao: NotesDao) {
 
     fun getAllNotesSorted(): LiveData<List<Note>> {
-        return noteDao.getAllNotesSorted()
+        return notesDao.getAllNotesSorted()
     }
 
     suspend fun updateNote(note: Note) {
-        noteDao.updateNote(note)
+        notesDao.updateNote(note)
     }
 
     suspend fun insertNote(note: Note): Long {
-        return noteDao.insertNote(note)
+        return notesDao.insertNote(note)
     }
 
     suspend fun updateNotes(vararg notes: Note) {
-        noteDao.updateNotes(*notes)
+        notesDao.updateNotes(*notes)
     }
 
     suspend fun deleteNote(note: Note) {
-        noteDao.deleteNote(note)
+        notesDao.deleteNote(note)
     }
 
     suspend fun deleteNotes(vararg notes: Note) {
-        noteDao.deleteNotes(*notes)
+        notesDao.deleteNotes(*notes)
     }
 }

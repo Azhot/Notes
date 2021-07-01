@@ -5,30 +5,30 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import fr.azhot.notes.data.database.dao.NoteDao
+import fr.azhot.notes.data.database.dao.NotesDao
 import fr.azhot.notes.domain.model.Note
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(entities = [Note::class], version = 1, exportSchema = false)
-abstract class NoteDatabase : RoomDatabase() {
+abstract class NotesDatabase : RoomDatabase() {
 
     // dao
-    abstract fun noteDao(): NoteDao
+    abstract fun noteDao(): NotesDao
 
 
     // companion
     companion object {
 
         @Volatile
-        private var INSTANCE: NoteDatabase? = null
+        private var INSTANCE: NotesDatabase? = null
 
-        fun getDatabase(context: Context, scope: CoroutineScope): NoteDatabase {
-            return INSTANCE ?: synchronized(NoteDatabase::class) {
+        fun getDatabase(context: Context, scope: CoroutineScope): NotesDatabase {
+            return INSTANCE ?: synchronized(NotesDatabase::class) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    NoteDatabase::class.java,
+                    NotesDatabase::class.java,
                     "Database"
                 )
                     .fallbackToDestructiveMigration()

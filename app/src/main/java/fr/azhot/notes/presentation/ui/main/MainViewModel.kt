@@ -3,12 +3,12 @@ package fr.azhot.notes.presentation.ui.main
 import androidx.lifecycle.*
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.util.ViewState
-import fr.azhot.notes.repository.NoteRepository
+import fr.azhot.notes.repository.NotesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val noteRepository: NoteRepository) : ViewModel() {
+class MainViewModel(private val notesRepository: NotesRepository) : ViewModel() {
 
     private val _viewState = MediatorLiveData<ViewState>()
     val viewState: LiveData<ViewState> get() = _viewState
@@ -18,7 +18,7 @@ class MainViewModel(private val noteRepository: NoteRepository) : ViewModel() {
     }
 
     private fun fetchNotes() {
-        _viewState.addSource(noteRepository.getAllNotesSorted()) { notes ->
+        _viewState.addSource(notesRepository.getAllNotesSorted()) { notes ->
             _viewState.postValue(ViewState.LoadingState)
             try {
                 _viewState.postValue(ViewState.FetchNotesState(notes))
@@ -30,9 +30,9 @@ class MainViewModel(private val noteRepository: NoteRepository) : ViewModel() {
 
     fun upsertNote(note: Note) = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
-        val result = async { noteRepository.insertNote(note) }
+        val result = async { notesRepository.insertNote(note) }
         if (result.await() == -1L) {
-            noteRepository.updateNote(note)
+            notesRepository.updateNote(note)
             _viewState.postValue(ViewState.UpdateNoteState(note))
         } else {
             _viewState.postValue(ViewState.InsertNoteState(note))
@@ -41,30 +41,30 @@ class MainViewModel(private val noteRepository: NoteRepository) : ViewModel() {
 
     fun updateNotes(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
-        noteRepository.updateNotes(*notes)
+        notesRepository.updateNotes(*notes)
         _viewState.postValue(ViewState.UpdateNotesState(*notes))
     }
 
     fun deleteEmptyNote(note: Note) = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
-        noteRepository.deleteNote(note)
+        notesRepository.deleteNote(note)
         _viewState.postValue(ViewState.EmptyNoteDeleteState(note))
     }
 
     fun deleteNotes(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
-        noteRepository.deleteNotes(*notes)
+        notesRepository.deleteNotes(*notes)
         _viewState.postValue(ViewState.DeleteNotesState(*notes))
     }
 }
 
-class MainViewModelFactory(private val noteRepository: NoteRepository) :
+class MainViewModelFactory(private val notesRepository: NotesRepository) :
     ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(noteRepository) as T
+            return MainViewModel(notesRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
