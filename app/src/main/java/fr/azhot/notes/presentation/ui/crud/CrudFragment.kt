@@ -13,10 +13,10 @@ import androidx.navigation.fragment.navArgs
 import fr.azhot.notes.databinding.FragmentCrudBinding
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.ui.main.MainViewModel
-import fr.azhot.notes.util.ROOT_PREFIX
-import fr.azhot.notes.util.SHORT_SHARED_ELEMENT_TRANSITION
-import fr.azhot.notes.util.TEXT_PREFIX
-import fr.azhot.notes.util.TITLE_PREFIX
+import fr.azhot.notes.util.Constants.ROOT_PREFIX
+import fr.azhot.notes.util.Constants.SHORT_SHARED_ELEMENT_TRANSITION
+import fr.azhot.notes.util.Constants.TEXT_PREFIX
+import fr.azhot.notes.util.Constants.TITLE_PREFIX
 
 class CrudFragment : Fragment() {
 
