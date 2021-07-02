@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
@@ -45,16 +44,20 @@ class CrudFragment : Fragment() {
         args.note?.let {
             note = it
             setupSharedElementTransition()
-            setupNoteTitle()
-            setupNoteText()
+            setupNoteContent()
         }
         setupMaxPositionObserver()
     }
 
     override fun onDestroyView() {
-        when (note.title.isEmpty() && note.text.isEmpty()) {
+        when (binding.title.text.isEmpty() && binding.text.text.isEmpty()) {
             true -> viewModel.deleteEmptyNote(note)
-            false -> viewModel.upsertNote(note)
+            false -> viewModel.upsertNote(
+                note.copy(
+                    title = binding.title.text.toString(),
+                    text = binding.text.text.toString(),
+                )
+            )
         }
         super.onDestroyView()
         _binding = null
@@ -72,25 +75,14 @@ class CrudFragment : Fragment() {
         ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${note.id}")
     }
 
-    private fun setupNoteTitle() {
-        binding.title.apply {
-            setText(note.title)
-            doAfterTextChanged { note.title = (it ?: "").toString() }
-        }
-    }
-
-    private fun setupNoteText() {
-        binding.text.apply {
-            setText(note.text)
-            doAfterTextChanged { note.text = (it ?: "").toString() }
-        }
+    private fun setupNoteContent() {
+        binding.title.setText(note.title)
+        binding.text.setText(note.text)
     }
 
     private fun setupMaxPositionObserver() {
         viewModel.maxPosition.observe(viewLifecycleOwner) { maxPosition ->
-            note = Note(position = maxPosition + 1)
-            setupNoteTitle()
-            setupNoteText()
+            if (!this::note.isInitialized) note = Note(position = maxPosition + 1)
         }
     }
 }
