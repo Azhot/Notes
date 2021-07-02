@@ -39,7 +39,7 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
 
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-            listener.onDragEnd(viewHolder as ViewHolder, *notes.toTypedArray())
+            listener.onDragEnd(viewHolder as ViewHolder, notes)
             super.clearView(recyclerView, viewHolder)
         }
 
@@ -65,9 +65,9 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
 
     // variables
     private var notes = mutableListOf<Note>()
-    val currentNotes get() = notes
+    val currentNotes: List<Note> get() = notes
     private val selected = mutableListOf<Note>()
-
+    val selectedNotes: List<Note> get() = selected
 
     // overridden functions
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -91,7 +91,6 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
     // functions
     fun setNotes(notes: List<Note>) {
         when {
-            this.notes == notes -> return
             this.notes.size == notes.size -> {
                 for (i in this.notes.indices) {
                     if (this.notes[i] != notes[i]) {
@@ -117,6 +116,10 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
                 }
             }
         }
+
+        for (i in selected.lastIndex downTo 0) {
+            if (!this.notes.contains(selected[i])) selected.removeAt(i)
+        }
     }
 
     fun insertNote(note: Note) {
@@ -139,9 +142,6 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
 
     fun getSelectedNotesCount() = selected.count()
 
-    fun getSelectedNotesAndClear(): Array<out Note> =
-        selected.toTypedArray().also { clearSelectedState() }
-
     fun clearSelectedState() {
         for (i in selected.lastIndex downTo 0) {
             val note = selected[i]
@@ -155,7 +155,7 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
     interface NotesAdapterListener {
         fun onClick(viewHolder: ViewHolder, binding: CellNoteBinding)
         fun onLongClick(viewHolder: ViewHolder)
-        fun onDragEnd(viewHolder: ViewHolder, vararg notes: Note)
+        fun onDragEnd(viewHolder: ViewHolder, notes: List<Note>)
     }
 
 
@@ -197,7 +197,7 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
             setElevation(note)
         }
 
-        private fun setupSharedElementTransition(noteId: String) {
+        private fun setupSharedElementTransition(noteId: Int) {
             ViewCompat.setTransitionName(binding.root, "$ROOT_PREFIX${noteId}")
             ViewCompat.setTransitionName(binding.title, "$TITLE_PREFIX${noteId}")
             ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${noteId}")

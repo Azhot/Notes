@@ -20,6 +20,7 @@ class MainViewModel @Inject constructor(
 
     private val _viewState = MediatorLiveData<ViewState>()
     val viewState: LiveData<ViewState> get() = _viewState
+    val maxPosition get() = notesRepository.getMaxPosition()
 
     init {
         fetchNotes()
@@ -47,10 +48,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun updateNotes(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
+    fun updateNotes(notes: List<Note>) = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
-        notesRepository.updateNotes(*notes)
-        _viewState.postValue(ViewState.UpdateNotesState(*notes))
+        notesRepository.updateNotes(notes)
+        _viewState.postValue(ViewState.UpdateNotesState(notes))
     }
 
     fun deleteEmptyNote(note: Note) = viewModelScope.launch(Dispatchers.IO) {
@@ -59,9 +60,9 @@ class MainViewModel @Inject constructor(
         _viewState.postValue(ViewState.EmptyNoteDeleteState(note))
     }
 
-    fun deleteNotes(vararg notes: Note) = viewModelScope.launch(Dispatchers.IO) {
+    fun deleteNotes(notes: List<Note>) = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
-        notesRepository.deleteNotes(*notes)
-        _viewState.postValue(ViewState.DeleteNotesState(*notes))
+        notesRepository.deleteNotes(notes)
+        _viewState.postValue(ViewState.DeleteNotesState(notes))
     }
 }

@@ -8,7 +8,7 @@ sealed class ViewState {
     class FetchNotesState(val data: List<Note>) : ViewState()
     class InsertNoteState(val note: Note) : ViewState()
     class UpdateNoteState(val note: Note) : ViewState()
-    class UpdateNotesState(vararg val notes: Note) : ViewState()
+    class UpdateNotesState(val notes: List<Note>) : ViewState()
     class EmptyNoteDeleteState(val note: Note) : ViewState()
-    class DeleteNotesState(vararg val notes: Note) : ViewState()
+    class DeleteNotesState(val notes: List<Note>) : ViewState()
 }

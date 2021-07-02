@@ -7,8 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import fr.azhot.notes.data.database.NotesDatabase
-import fr.azhot.notes.data.database.NotesDao
+import fr.azhot.notes.data.NotesDatabase
+import fr.azhot.notes.data.NotesDao
 import fr.azhot.notes.repository.NotesRepository
 import fr.azhot.notes.repository.NotesRepositoryImpl
 import fr.azhot.notes.util.Constants.NOTES_DATABASE_NAME

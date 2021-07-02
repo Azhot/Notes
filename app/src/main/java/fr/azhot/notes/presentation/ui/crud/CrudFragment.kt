@@ -42,10 +42,13 @@ class CrudFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initializeNote()
-        setupSharedElementTransition()
-        setupNoteTitle()
-        setupNoteText()
+        args.note?.let {
+            note = it
+            setupSharedElementTransition()
+            setupNoteTitle()
+            setupNoteText()
+        }
+        setupMaxPositionObserver()
     }
 
     override fun onDestroyView() {
@@ -59,12 +62,7 @@ class CrudFragment : Fragment() {
 
 
     // functions
-    private fun initializeNote() {
-        note = args.note ?: Note(position = System.currentTimeMillis())
-    }
-
     private fun setupSharedElementTransition() {
-        if (args.note == null) return
         sharedElementEnterTransition = TransitionInflater
             .from(this.context)
             .inflateTransition(android.R.transition.move)
@@ -85,6 +83,14 @@ class CrudFragment : Fragment() {
         binding.text.apply {
             setText(note.text)
             doAfterTextChanged { note.text = (it ?: "").toString() }
+        }
+    }
+
+    private fun setupMaxPositionObserver() {
+        viewModel.maxPosition.observe(viewLifecycleOwner) { maxPosition ->
+            note = Note(position = maxPosition + 1)
+            setupNoteTitle()
+            setupNoteText()
         }
     }
 }

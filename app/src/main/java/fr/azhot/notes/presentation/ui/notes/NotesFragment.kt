@@ -62,9 +62,7 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
         binding.toolbar.visibility = View.GONE
         when (item.itemId) {
             R.id.delete -> {
-                adapter.getSelectedNotesAndClear().let { selectedNotes ->
-                    viewModel.deleteNotes(*selectedNotes)
-                }
+                viewModel.deleteNotes(adapter.selectedNotes)
                 return true
             }
             R.id.send -> {
@@ -91,8 +89,8 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
         itemTouchHelper.startDrag(viewHolder)
     }
 
-    override fun onDragEnd(viewHolder: NotesAdapter.ViewHolder, vararg notes: Note) {
-        viewModel.updateNotes(*notes)
+    override fun onDragEnd(viewHolder: NotesAdapter.ViewHolder, notes: List<Note>) {
+        viewModel.updateNotes(notes)
         binding.toolbar.visibility = View.VISIBLE
         binding.toolbar.title = adapter.getSelectedNotesCount().toString()
     }

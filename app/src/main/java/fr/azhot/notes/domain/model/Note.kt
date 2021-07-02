@@ -2,30 +2,25 @@ package fr.azhot.notes.domain.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import java.util.*
 
-@Entity(tableName = "note_table")
 data class Note(
-    @ColumnInfo(name = "title") var title: String = "",
-    @ColumnInfo(name = "text") var text: String = "",
-    @ColumnInfo(name = "position") var position: Long,
-    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val id: Int = 0,
+    var title: String = "",
+    var text: String = "",
+    var position: Int,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
+        parcel.readInt(),
         parcel.readString() ?: "",
         parcel.readString() ?: "",
-        parcel.readLong(),
-        parcel.readString() ?: "",
+        parcel.readInt()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(id)
         parcel.writeString(title)
         parcel.writeString(text)
-        parcel.writeLong(position)
-        parcel.writeString(id)
+        parcel.writeInt(position)
     }
 
     override fun describeContents(): Int {
