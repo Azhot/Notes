@@ -153,6 +153,7 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
                     binding.notesRecyclerView.smoothScrollToPosition(0)
                 }
                 is ViewState.UpdateNoteState -> adapter.updateNote(viewState.note)
+                is ViewState.EmptyNoteDeleteState -> viewModel.fetchNotes()
                 else -> return@observe
             }
         }

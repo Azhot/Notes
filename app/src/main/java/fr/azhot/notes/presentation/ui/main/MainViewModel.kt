@@ -1,6 +1,9 @@
 package fr.azhot.notes.presentation.ui.main
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.util.ViewState
@@ -22,7 +25,7 @@ class MainViewModel @Inject constructor(
         fetchNotes()
     }
 
-    private fun fetchNotes() {
+    fun fetchNotes() {
         _viewState.addSource(notesRepository.getAllNotesSorted()) { notes ->
             _viewState.postValue(ViewState.LoadingState)
             try {
