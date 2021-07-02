@@ -10,17 +10,19 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
+import dagger.hilt.android.AndroidEntryPoint
 import fr.azhot.notes.R
 import fr.azhot.notes.databinding.CellNoteBinding
 import fr.azhot.notes.databinding.FragmentNotesBinding
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.ui.main.MainViewModel
 import fr.azhot.notes.presentation.util.ViewState
-import fr.azhot.notes.util.ROOT_PREFIX
-import fr.azhot.notes.util.TEXT_PREFIX
-import fr.azhot.notes.util.TITLE_PREFIX
+import fr.azhot.notes.util.Constants.ROOT_PREFIX
+import fr.azhot.notes.util.Constants.TEXT_PREFIX
+import fr.azhot.notes.util.Constants.TITLE_PREFIX
 import java.util.*
 
+@AndroidEntryPoint
 class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
 
     // variables

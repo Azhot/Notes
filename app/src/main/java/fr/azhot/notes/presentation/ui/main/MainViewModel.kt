@@ -1,14 +1,19 @@
 package fr.azhot.notes.presentation.ui.main
 
 import androidx.lifecycle.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.util.ViewState
 import fr.azhot.notes.repository.NotesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(private val notesRepository: NotesRepository) : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private var notesRepository: NotesRepository
+) : ViewModel() {
 
     private val _viewState = MediatorLiveData<ViewState>()
     val viewState: LiveData<ViewState> get() = _viewState
@@ -55,17 +60,5 @@ class MainViewModel(private val notesRepository: NotesRepository) : ViewModel() 
         _viewState.postValue(ViewState.LoadingState)
         notesRepository.deleteNotes(*notes)
         _viewState.postValue(ViewState.DeleteNotesState(*notes))
-    }
-}
-
-class MainViewModelFactory(private val notesRepository: NotesRepository) :
-    ViewModelProvider.Factory {
-
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(notesRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

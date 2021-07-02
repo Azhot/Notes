@@ -6,22 +6,18 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import fr.azhot.notes.R
-import fr.azhot.notes.application.NotesApplication
 import fr.azhot.notes.databinding.ActivityMainBinding
 import fr.azhot.notes.presentation.ui.notes.NotesFragmentDirections
 import fr.azhot.notes.presentation.util.ViewState
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     // variables
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: MainViewModel by viewModels {
-        MainViewModelFactory(
-            (application as NotesApplication).noteRepository
-        )
-    }
+    private val viewModel: MainViewModel by viewModels()
 
 
     // overridden functions

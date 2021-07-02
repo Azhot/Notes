@@ -1,4 +1,4 @@
-package fr.azhot.notes.data.database.dao
+package fr.azhot.notes.data.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
