@@ -26,6 +26,7 @@ class CrudFragment : Fragment() {
     private var _binding: FragmentCrudBinding? = null
     private val binding get() = _binding!!
     private lateinit var note: Note
+    private val args: CrudFragmentArgs by navArgs()
     private val viewModel: MainViewModel by activityViewModels()
 
 
@@ -59,11 +60,11 @@ class CrudFragment : Fragment() {
 
     // functions
     private fun initializeNote() {
-        val args: CrudFragmentArgs by navArgs()
         note = args.note ?: Note(position = System.currentTimeMillis())
     }
 
     private fun setupSharedElementTransition() {
+        if (args.note == null) return
         sharedElementEnterTransition = TransitionInflater
             .from(this.context)
             .inflateTransition(android.R.transition.move)

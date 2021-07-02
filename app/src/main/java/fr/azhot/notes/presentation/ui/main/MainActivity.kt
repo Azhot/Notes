@@ -4,12 +4,10 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import fr.azhot.notes.R
 import fr.azhot.notes.databinding.ActivityMainBinding
-import fr.azhot.notes.presentation.ui.notes.NotesFragmentDirections
 import fr.azhot.notes.presentation.util.ViewState
 
 @AndroidEntryPoint
@@ -53,15 +51,7 @@ class MainActivity : AppCompatActivity() {
                         binding.root,
                         getString(R.string.empty_note_deleted),
                         Snackbar.LENGTH_SHORT
-                    )
-                        .setAction(getString(R.string.cancel)) {
-                            val directions =
-                                NotesFragmentDirections.actionMainFragmentToCrudFragment(
-                                    viewState.note
-                                )
-                            findNavController(binding.navHostFragment.id).navigate(directions)
-                        }
-                        .show()
+                    ).show()
                 }
                 else -> {
                 }
