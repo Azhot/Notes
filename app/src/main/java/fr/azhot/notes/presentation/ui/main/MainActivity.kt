@@ -46,13 +46,6 @@ class MainActivity : AppCompatActivity() {
                     viewState.message,
                     Snackbar.LENGTH_SHORT
                 ).show()
-                is ViewState.EmptyNoteDeleteState -> {
-                    Snackbar.make(
-                        binding.root,
-                        getString(R.string.empty_note_deleted),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
                 else -> {
                 }
             }

@@ -10,6 +10,7 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import fr.azhot.notes.R
 import fr.azhot.notes.databinding.CellNoteBinding
@@ -151,7 +152,14 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
                     binding.notesRecyclerView.smoothScrollToPosition(0)
                 }
                 is ViewState.UpdateNoteState -> adapter.updateNote(viewState.note)
-                is ViewState.EmptyNoteDeleteState -> viewModel.fetchNotes()
+                is ViewState.EmptyNoteDeleteState -> {
+                    viewModel.fetchNotes()
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.empty_note_deleted),
+                        Snackbar.LENGTH_SHORT
+                    ).apply { anchorView = binding.extendedFab }.show()
+                }
                 else -> return@observe
             }
         }
