@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/notes_fragment"
+        android:icon="@drawable/ic_note"
+        android:title="@string/notes"
+        app:iconTint="@color/bottom_navigation_color_selector"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/place_holder"
+        android:enabled="false"
+        android:title="" />
+
+    <item
+        android:id="@+id/events_fragment"
+        android:checkable="true"
+        android:icon="@drawable/ic_event_note"
+        android:title="@string/events"
+        app:iconTint="@color/bottom_navigation_color_selector"
+        app:showAsAction="ifRoom" />
+
+</menu>

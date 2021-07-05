@@ -3,14 +3,12 @@ package fr.azhot.notes.presentation.ui.notes
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import fr.azhot.notes.R
 import fr.azhot.notes.databinding.CellNoteBinding
@@ -49,8 +47,6 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
         super.onViewCreated(view, savedInstanceState)
         setupToolbar()
         setupNotesRecyclerView()
-        setupExtendedFab()
-        setupAddNoteFab()
         setupViewStateObserver()
     }
 
@@ -62,13 +58,8 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         binding.toolbar.visibility = View.GONE
         when (item.itemId) {
-            R.id.delete -> {
-                viewModel.deleteNotes(adapter.selectedNotes)
-                return true
-            }
-            R.id.send -> {
-                return true
-            }
+            R.id.delete -> return true.also { viewModel.deleteNotes(adapter.selectedNotes) } // todo : offer the user a step-back
+            R.id.send -> return true // todo : implement
         }
         return super.onOptionsItemSelected(item)
     }
@@ -121,28 +112,6 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
         }
     }
 
-    private fun setupExtendedFab() {
-        binding.extendedFab.apply {
-            shrink()
-            setOnClickListener {
-                if (!binding.addNoteFab.isVisible) {
-                    binding.addNoteFab.show()
-                    binding.extendedFab.extend()
-                } else {
-                    binding.addNoteFab.hide()
-                    binding.extendedFab.shrink()
-                }
-            }
-        }
-    }
-
-    private fun setupAddNoteFab() {
-        binding.addNoteFab.setOnClickListener {
-            val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment()
-            findNavController().navigate(directions)
-        }
-    }
-
     private fun setupViewStateObserver() {
         viewModel.viewState.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
@@ -152,14 +121,7 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
                     binding.notesRecyclerView.smoothScrollToPosition(0)
                 }
                 is ViewState.UpdateNoteState -> adapter.updateNote(viewState.note)
-                is ViewState.EmptyNoteDeleteState -> {
-                    viewModel.fetchNotes()
-                    Snackbar.make(
-                        binding.root,
-                        getString(R.string.empty_note_deleted),
-                        Snackbar.LENGTH_SHORT
-                    ).apply { anchorView = binding.extendedFab }.show()
-                }
+                is ViewState.EmptyNoteDeleteState -> viewModel.fetchNotes()
                 else -> return@observe
             }
         }
@@ -180,7 +142,7 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
     }
 
     private fun navigateToCrudFragment(note: Note, binding: CellNoteBinding) {
-        val directions = NotesFragmentDirections.actionMainFragmentToCrudFragment(note)
+        val directions = NotesFragmentDirections.actionNotesFragmentToCrudFragment(note)
         val extras = FragmentNavigatorExtras(
             binding.root to "$ROOT_PREFIX${note.id}",
             binding.title to "$TITLE_PREFIX${note.id}",
