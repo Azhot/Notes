@@ -91,30 +91,9 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
     // functions
     fun setNotes(notes: List<Note>) {
         when {
-            this.notes.size == notes.size -> {
-                for (i in this.notes.indices) {
-                    if (this.notes[i] != notes[i]) {
-                        this.notes[i] = notes[i]
-                        notifyItemChanged(i)
-                    }
-                }
-            }
-            this.notes.size < notes.size -> {
-                for (i in notes.indices) {
-                    if (!this.notes.contains(notes[i])) {
-                        this.notes.add(i, notes[i])
-                        notifyItemInserted(i)
-                    }
-                }
-            }
-            this.notes.size > notes.size -> {
-                for (i in this.notes.lastIndex downTo 0) {
-                    if (!notes.contains(this.notes[i])) {
-                        this.notes.removeAt(i)
-                        notifyItemRemoved(i)
-                    }
-                }
-            }
+            this.notes.size == notes.size -> updateNotes(notes)
+            this.notes.size < notes.size -> insertNotes(notes)
+            this.notes.size > notes.size -> deleteNotes(notes)
         }
 
         for (i in selected.lastIndex downTo 0) {
@@ -122,20 +101,31 @@ class NotesAdapter(private val listener: NotesAdapterListener) :
         }
     }
 
-    fun insertNote(note: Note) {
-        this.notes.add(0, note)
-        notifyItemInserted(0)
-    }
-
-    fun updateNote(note: Note): Int {
-        for (i in notes.indices) {
-            if (notes[i].id == note.id) {
-                notes[i] = note
+    private fun updateNotes(notes: List<Note>) {
+        for (i in this.notes.indices) {
+            if (this.notes[i] != notes[i]) {
+                this.notes[i] = notes[i]
                 notifyItemChanged(i)
-                return i
             }
         }
-        return 0
+    }
+
+    private fun insertNotes(notes: List<Note>) {
+        for (i in notes.indices) {
+            if (!this.notes.contains(notes[i])) {
+                this.notes.add(i, notes[i])
+                notifyItemInserted(i)
+            }
+        }
+    }
+
+    private fun deleteNotes(notes: List<Note>) {
+        for (i in this.notes.lastIndex downTo 0) {
+            if (!notes.contains(this.notes[i])) {
+                this.notes.removeAt(i)
+                notifyItemRemoved(i)
+            }
+        }
     }
 
     fun isInSelectionMode() = selected.isNotEmpty()

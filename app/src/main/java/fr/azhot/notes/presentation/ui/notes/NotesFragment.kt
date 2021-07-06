@@ -116,12 +116,7 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
         viewModel.viewState.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
                 is ViewState.FetchNotesState -> adapter.setNotes(viewState.data)
-                is ViewState.InsertNoteState -> {
-                    adapter.insertNote(viewState.note)
-                    binding.notesRecyclerView.smoothScrollToPosition(0)
-                }
-                is ViewState.UpdateNoteState -> adapter.updateNote(viewState.note)
-                is ViewState.EmptyNoteDeleteState -> viewModel.fetchNotes()
+                is ViewState.InsertNoteState -> binding.notesRecyclerView.smoothScrollToPosition(0)
                 else -> return@observe
             }
         }

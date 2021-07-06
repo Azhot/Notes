@@ -1,5 +1,6 @@
 package fr.azhot.notes.presentation.ui.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
@@ -26,7 +27,7 @@ class MainViewModel @Inject constructor(
         fetchNotes()
     }
 
-    fun fetchNotes() {
+    private fun fetchNotes() {
         _viewState.addSource(notesRepository.getAllNotesSorted()) { notes ->
             _viewState.postValue(ViewState.LoadingState)
             try {
@@ -48,16 +49,22 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun insertNotes(notes: List<Note>) = viewModelScope.launch(Dispatchers.IO) {
+        _viewState.postValue(ViewState.LoadingState)
+        notesRepository.insertNotes(notes)
+        _viewState.postValue(ViewState.InsertNotesState(notes))
+    }
+
     fun updateNotes(notes: List<Note>) = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
         notesRepository.updateNotes(notes)
         _viewState.postValue(ViewState.UpdateNotesState(notes))
     }
 
-    fun deleteEmptyNote(note: Note) = viewModelScope.launch(Dispatchers.IO) {
+    fun removeEmptyNote() = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
-        notesRepository.deleteNote(note)
-        _viewState.postValue(ViewState.EmptyNoteDeleteState(note))
+        _viewState.postValue(ViewState.RemoveEmptyNoteState)
+        fetchNotes()
     }
 
     fun deleteNotes(notes: List<Note>) = viewModelScope.launch(Dispatchers.IO) {

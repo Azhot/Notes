@@ -20,5 +20,7 @@
 
     <!-- User messaging -->
     <string name="empty_note_deleted">Empty note was deleted.</string>
+    <string name="notes_deleted">Note(s) deleted …</string>
+    <string name="undo">Undo</string>
 
 </resources>

@@ -11,6 +11,8 @@ interface NotesRepository {
 
     suspend fun insertNote(note: Note): Long
 
+    suspend fun insertNotes(notes: List<Note>): List<Long>
+
     suspend fun updateNote(note: Note)
 
     suspend fun updateNotes(notes: List<Note>)

@@ -51,7 +51,7 @@ class CrudFragment : Fragment() {
 
     override fun onDestroyView() {
         when (binding.title.text.isEmpty() && binding.text.text.isEmpty()) {
-            true -> viewModel.deleteEmptyNote(note)
+            true -> viewModel.removeEmptyNote()
             false -> viewModel.upsertNote(
                 note.copy(
                     title = binding.title.text.toString(),

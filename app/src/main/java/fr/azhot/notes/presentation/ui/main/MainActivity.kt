@@ -11,6 +11,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import fr.azhot.notes.R
 import fr.azhot.notes.databinding.ActivityMainBinding
+import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.ui.crud.CrudFragment
 import fr.azhot.notes.presentation.ui.notes.NotesFragment
 import fr.azhot.notes.presentation.ui.notes.NotesFragmentDirections
@@ -24,6 +25,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navHostFragment: NavHostFragment
     private val viewModel: MainViewModel by viewModels()
+
+
+    // Listener
+    private inner class UndoOnClickListener(private val notes: List<Note>) : View.OnClickListener {
+        override fun onClick(v: View?) {
+            viewModel.insertNotes(notes)
+        }
+    }
 
 
     // overridden functions
@@ -92,11 +101,25 @@ class MainActivity : AppCompatActivity() {
                     viewState.message,
                     Snackbar.LENGTH_SHORT
                 ).show()
-                is ViewState.EmptyNoteDeleteState -> Snackbar.make(
+                is ViewState.RemoveEmptyNoteState -> Snackbar.make(
                     binding.root,
                     getString(R.string.empty_note_deleted),
                     Snackbar.LENGTH_SHORT
-                ).apply { anchorView = binding.fab }.show()
+                ).apply {
+                    anchorView = binding.fab
+                    show()
+                }
+                is ViewState.DeleteNotesState -> {
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.notes_deleted),
+                        Snackbar.LENGTH_LONG
+                    ).apply {
+                        anchorView = binding.fab
+                        setAction(R.string.undo, UndoOnClickListener(viewState.notes.toList()))
+                        show()
+                    }
+                }
                 else -> {
                 }
             }

@@ -14,6 +14,10 @@ class NotesRepositoryImpl(private val notesDao: NotesDao) : NotesRepository {
         return notesDao.insertNote(NoteMapper.toNoteEntity(note))
     }
 
+    override suspend fun insertNotes(notes: List<Note>): List<Long> {
+        return notesDao.insertNotes(*NoteMapper.toNoteEntities(notes))
+    }
+
     override suspend fun updateNote(note: Note) {
         notesDao.updateNote(NoteMapper.toNoteEntity(note))
     }
