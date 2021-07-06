@@ -1,6 +1,5 @@
 package fr.azhot.notes.presentation.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +11,7 @@ import fr.azhot.notes.repository.NotesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,7 +64,7 @@ class MainViewModel @Inject constructor(
     fun removeEmptyNote() = viewModelScope.launch(Dispatchers.IO) {
         _viewState.postValue(ViewState.LoadingState)
         _viewState.postValue(ViewState.RemoveEmptyNoteState)
-        fetchNotes()
+        withContext(Dispatchers.Main) { fetchNotes() }
     }
 
     fun deleteNotes(notes: List<Note>) = viewModelScope.launch(Dispatchers.IO) {
