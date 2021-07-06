@@ -112,7 +112,11 @@ class MainActivity : AppCompatActivity() {
                 is ViewState.DeleteNotesState -> {
                     Snackbar.make(
                         binding.root,
-                        getString(R.string.notes_deleted),
+                        if (viewState.notes.size > 1) {
+                            getString(R.string.notes_deleted, viewState.notes.size)
+                        } else {
+                            getString(R.string.note_deleted)
+                        },
                         Snackbar.LENGTH_LONG
                     ).apply {
                         anchorView = binding.fab
