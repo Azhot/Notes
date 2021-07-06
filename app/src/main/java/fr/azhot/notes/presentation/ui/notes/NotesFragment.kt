@@ -5,6 +5,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -19,6 +20,8 @@ import fr.azhot.notes.presentation.util.ViewState
 import fr.azhot.notes.util.Constants.ROOT_PREFIX
 import fr.azhot.notes.util.Constants.TEXT_PREFIX
 import fr.azhot.notes.util.Constants.TITLE_PREFIX
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 @AndroidEntryPoint
@@ -116,7 +119,20 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
         viewModel.viewState.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
                 is ViewState.FetchNotesState -> adapter.setNotes(viewState.data)
-                is ViewState.InsertNoteState -> binding.notesRecyclerView.smoothScrollToPosition(0)
+                is ViewState.InsertNoteState -> {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        delay(200)
+                        binding.notesRecyclerView.smoothScrollToPosition(0)
+                    }
+                }
+                is ViewState.InsertNotesState -> {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        delay(200)
+                        binding.notesRecyclerView.smoothScrollToPosition(
+                            adapter.currentNotes.indexOf(viewState.notes[0])
+                        )
+                    }
+                }
                 else -> return@observe
             }
         }
