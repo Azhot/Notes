@@ -1,7 +1,7 @@
 package fr.azhot.notes.presentation.ui.crud
 
 import android.os.Bundle
-import android.transition.TransitionInflater
+import android.transition.ChangeBounds
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +13,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import fr.azhot.notes.databinding.FragmentCrudBinding
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.ui.main.MainViewModel
+import fr.azhot.notes.util.Constants
 import fr.azhot.notes.util.Constants.ROOT_PREFIX
-import fr.azhot.notes.util.Constants.SHORT_SHARED_ELEMENT_TRANSITION
 import fr.azhot.notes.util.Constants.TEXT_PREFIX
 import fr.azhot.notes.util.Constants.TITLE_PREFIX
 
@@ -41,6 +41,7 @@ class CrudFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        postponeEnterTransition()
         args.note?.let {
             note = it
             setupSharedElementTransition()
@@ -66,13 +67,14 @@ class CrudFragment : Fragment() {
 
     // functions
     private fun setupSharedElementTransition() {
-        sharedElementEnterTransition = TransitionInflater
-            .from(this.context)
-            .inflateTransition(android.R.transition.move)
-            .also { it.duration = SHORT_SHARED_ELEMENT_TRANSITION }
+        sharedElementEnterTransition =
+            ChangeBounds().apply { duration = Constants.SHORT_TRANSITION }
+        sharedElementReturnTransition =
+            ChangeBounds().apply { duration = Constants.SHORT_TRANSITION }
         ViewCompat.setTransitionName(binding.root, "$ROOT_PREFIX${note.id}")
         ViewCompat.setTransitionName(binding.title, "$TITLE_PREFIX${note.id}")
         ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${note.id}")
+        startPostponedEnterTransition()
     }
 
     private fun setupNoteContent() {

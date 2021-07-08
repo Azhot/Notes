@@ -1,8 +1,10 @@
 package fr.azhot.notes.presentation.ui.notes
 
 import android.os.Bundle
+import android.transition.Fade
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +19,7 @@ import fr.azhot.notes.databinding.FragmentNotesBinding
 import fr.azhot.notes.domain.model.Note
 import fr.azhot.notes.presentation.ui.main.MainViewModel
 import fr.azhot.notes.presentation.util.ViewState
+import fr.azhot.notes.util.Constants
 import fr.azhot.notes.util.Constants.ROOT_PREFIX
 import fr.azhot.notes.util.Constants.TEXT_PREFIX
 import fr.azhot.notes.util.Constants.TITLE_PREFIX
@@ -48,9 +51,10 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupTransition()
         setupToolbar()
         setupNotesRecyclerView()
-        setupViewStateObserver()
+        setupViewStateObserver(view)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -92,6 +96,12 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
 
 
     // functions
+    private fun setupTransition() {
+        postponeEnterTransition()
+        enterTransition = Fade().apply { duration = Constants.SHORT_TRANSITION }
+        exitTransition = Fade().apply { duration = Constants.SHORT_TRANSITION }
+    }
+
     private fun setupToolbar() {
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbar)
         binding.toolbar.setNavigationIcon(R.drawable.ic_close_24)
@@ -104,21 +114,19 @@ class NotesFragment : Fragment(), NotesAdapter.NotesAdapterListener {
     private fun setupNotesRecyclerView() {
         adapter = NotesAdapter(this)
         itemTouchHelper = ItemTouchHelper(adapter.itemTouchCallback)
-        binding.notesRecyclerView.apply {
-            adapter = this@NotesFragment.adapter
-            itemTouchHelper.attachToRecyclerView(this)
-            postponeEnterTransition()
-            viewTreeObserver.addOnPreDrawListener {
-                startPostponedEnterTransition()
-                true
-            }
-        }
+        binding.notesRecyclerView.adapter = adapter
+        itemTouchHelper.attachToRecyclerView(binding.notesRecyclerView)
     }
 
-    private fun setupViewStateObserver() {
+    private fun setupViewStateObserver(view: View) {
         viewModel.viewState.observe(viewLifecycleOwner) { viewState ->
             when (viewState) {
-                is ViewState.FetchNotesState -> adapter.setNotes(viewState.data)
+                is ViewState.FetchNotesState -> {
+                    adapter.setNotes(viewState.data)
+                    (view.parent as? ViewGroup)?.doOnPreDraw {
+                        startPostponedEnterTransition()
+                    }
+                }
                 is ViewState.InsertNoteState -> {
                     viewLifecycleOwner.lifecycleScope.launch {
                         delay(200)
