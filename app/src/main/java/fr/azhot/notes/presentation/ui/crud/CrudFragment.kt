@@ -47,6 +47,7 @@ class CrudFragment : Fragment() {
             setupSharedElementTransition()
             setupNoteContent()
         }
+        startPostponedEnterTransition()
         setupMaxPositionObserver()
     }
 
@@ -74,7 +75,6 @@ class CrudFragment : Fragment() {
         ViewCompat.setTransitionName(binding.root, "$ROOT_PREFIX${note.id}")
         ViewCompat.setTransitionName(binding.title, "$TITLE_PREFIX${note.id}")
         ViewCompat.setTransitionName(binding.text, "$TEXT_PREFIX${note.id}")
-        startPostponedEnterTransition()
     }
 
     private fun setupNoteContent() {
